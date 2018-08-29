@@ -1,0 +1,59 @@
+.theme-bg {
+    background-color: teal;
+    color: white;
+}
+.theme-bg-light {
+    background-color: #00b9b9;
+    color: white;
+}
+.theme-text {
+    color: teal;
+}
+.theme-text-faded {
+    color: #00b9b9;
+}
+
+.input-center {
+    width: 350px;
+}
+
+.button-main {
+    min-width: 64px;
+    height: 36px;
+
+    padding: 6px 16px 8px 16px;
+
+    font-size: 16px;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+.button-main.theme-bg:hover {
+    background-color: #008c8c;
+}
+.button-main.theme-bg:focus {
+    background-color: #009999;
+}
+.button-main.theme-bg:disabled {
+    background-color: #959799;
+    color: #5d5f61;
+}
+
+.button-outlined {
+
+}
+
+.button-text {
+
+}
+.button-text:hover {
+    text-decoration: underline;
+}
+.button-text:focus {
+    text-decoration: underline;
+}
+.button-text:disabled {
+
+}
+
+div.top-container {
+    padding: 4px 16px;
+}
