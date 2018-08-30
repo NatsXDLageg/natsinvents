@@ -1,4 +1,5 @@
 <?php
 
-    echo "<p>Erro</p>"
+echo "<p>Erro</p>"
+
 ?>

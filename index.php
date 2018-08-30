@@ -1,16 +1,17 @@
 <?php
 
-    if(!isset($server_var)) {
-        include($_SERVER['DOCUMENT_ROOT']."/../common_files/server_var.php");
-        $server_var = true;
-    }
+if(!isset($server_var)) {
+    include($_SERVER['DOCUMENT_ROOT']."/../common_files/server_var.php");
+    $server_var = true;
+}
 
-    if(!isset($check_login)) {
-        include($_SERVER['POGO_ROOT'] . "/php_posts/check_login.php");
-        $check_login = true;
-    }
+if(!isset($check_login)) {
+    include($_SERVER['POGO_ROOT'] . "/php_posts/check_login.php");
+    $check_login = true;
+}
 
-    $cache_sufix = '?'.time();
+$cache_sufix = '?'.time();
+
 ?>
 
 
