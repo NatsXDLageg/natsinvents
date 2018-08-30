@@ -1,7 +1,11 @@
 <?php
 
 session_start();
-include($_SERVER['DOCUMENT_ROOT']."/../common_files/php_connection.php");
+
+if(!isset($php_connection)) {
+    include($_SERVER['DOCUMENT_ROOT']."/../common_files/php_connection.php");
+    $php_connection = true;
+}
 
 if (!$_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -29,7 +33,7 @@ if($result->num_rows == 1) {
             header($location);
         }
         else {
-            header("Location:/index.php");
+            header("Location:/pogo/index.php");
         }
         exit();
     }
