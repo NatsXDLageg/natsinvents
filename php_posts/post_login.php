@@ -15,36 +15,41 @@ if (!$_SERVER['REQUEST_METHOD'] === 'POST') {
 $email = $_POST['email'];
 $userpwd = $_POST['password'];
 
-$query="Select senha, status from usuario where email = '$email'";
+$statement = $mysqli->prepare("Select senha, status from usuario where email = ?");
+$statement->bind_param('s', $email);
+$result = $statement->execute();
 
-$result = $mysqli->query($query) or die("couldn't execute the query");
+if($result) {
+    $result = $statement->get_result();
 
-if($result->num_rows == 1) {
-    $row = $result->fetch_array(MYSQLI_ASSOC);
-    $pass = $row["senha"];
+    if($result->num_rows == 1) {
+        $row = $result->fetch_array(MYSQLI_ASSOC);
+        $pass = $row["senha"];
 
-    if($pass == md5($userpwd)) {
+        if ($pass == md5($userpwd)) {
 
-        if($row["status"] == '1') {
+            if ($row["status"] == '1') {
 
-            $_SESSION['email'] = $email;
+                $_SESSION['email'] = $email;
 
-            if(isset($_SESSION['start_path'])) {
-                $location = "Location:".$_SESSION['start_path'];
-                unset($_SESSION['start_path']);
-                header($location);
+                if (isset($_SESSION['start_path'])) {
+                    $location = "Location:" . $_SESSION['start_path'];
+                    unset($_SESSION['start_path']);
+                    header($location);
+                }
+                else {
+                    header("Location:/pogo");
+                }
             }
             else {
-                header("Location:/pogo");
+                header("Location:/pogo/views/login.php?error=2");
             }
-            exit();
-        }
-        else {
-            header("Location:/pogo/views/login.php?error=2");
-            exit();
         }
     }
+    else {
+        header("Location:/pogo/views/login.php?error=1");
+    }
 }
-
-header("Location:/pogo/views/login.php?error=1");
-exit();
+else {
+    header("Location:/pogo/views/login.php?error=900");
+}
