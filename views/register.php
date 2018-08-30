@@ -1,25 +1,32 @@
 <?php
-    $email = "";
-    $errormessage = "";
-    if (isset($_POST['email'])) {
-        $email = $_POST['email'];
-    }
-    if (isset($_GET['error'])) {
-        $error = $_GET['error'];
-        switch ($error) {
-            case 1:
-                $errormessage = "Email já cadastrado. Tente outro";
-                break;
-            case 2:
-                $errormessage = "Não tente burlar o sistema";
-                break;
-            default:
-                $errormessage = "Erro desconhecido, por favor tente novamente (".$error.")";
-                break;
-        }
-    }
 
-    $cache_sufix = '?'.time();
+if(!isset($server_var)) {
+    include($_SERVER['DOCUMENT_ROOT']."/../common_files/server_var.php");
+    $server_var = true;
+}
+
+$email = "";
+$errormessage = "";
+if (isset($_POST['email'])) {
+    $email = $_POST['email'];
+}
+if (isset($_GET['error'])) {
+    $error = $_GET['error'];
+    switch ($error) {
+        case 1:
+            $errormessage = "Email já cadastrado. Tente outro";
+            break;
+        case 2:
+            $errormessage = "Não tente burlar o sistema";
+            break;
+        default:
+            $errormessage = "Erro desconhecido, por favor tente novamente (".$error.")";
+            break;
+    }
+}
+
+$cache_sufix = '?'.time();
+
 ?>
 
 <!DOCTYPE HTML>
@@ -27,20 +34,21 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <link rel="stylesheet" type="text/css" href="/resources/css/w3.css">
-        <link rel="stylesheet" type="text/css" href="/resources/css/theme.css<?php echo $cache_sufix; ?>"><!-- ?random=@Environment.TickCount -->
-        <link rel="stylesheet" type="text/css" href="/resources/css/iconselect.css" >
-        <script src="/resources/js/jquery-3.3.1.min.js"></script>
-        <script type="text/javascript" src="/resources/js/iconselect.js"></script>
-        <script type="text/javascript" src="/resources/js/iscroll.js"></script>
+        <link rel="stylesheet" type="text/css" href="/pogo/resources/css/w3.css">
+        <link rel="stylesheet" type="text/css" href="/pogo/resources/css/theme.css<?php echo $cache_sufix; ?>"><!-- ?random=@Environment.TickCount -->
+        <link rel="stylesheet" type="text/css" href="/pogo/resources/css/iconselect.css" >
+        <script src="/pogo/resources/js/jquery-3.3.1.min.js"></script>
+        <script type="text/javascript" src="/pogo/resources/js/iconselect.js"></script>
+        <script type="text/javascript" src="/pogo/resources/js/iscroll.js"></script>
 
         <title>Nats Invents - Registrar</title>
     </head>
     <body>
-        <?php include("../resources/php_components/error_top_container.php"); ?>
+        <?php include($_SERVER['POGO_ROOT']."/resources/php_components/error_top_container.php"); ?>
+        <?php include($_SERVER['POGO_ROOT']."/resources/php_components/warning_top_container.php"); ?>
         <div class="w3-display-container w3-col w3-half" style="padding: 0; height: 100vh;">
             <div class="w3-display-middle w3-mobile">
-                <form id="form" action="/php_posts/post_register.php" method="post">
+                <form id="form" action="/pogo/php_posts/post_register.php" method="post">
                     <div class="w3-container w3-padding">
                         <h2 class="theme-text">Registre-se</h2>
                     </div>
@@ -73,7 +81,7 @@
         </div>
         <div class="w3-display-container w3-col w3-half w3-hide-small theme-bg" style="height: 100vh;">
             <div class="w3-display-middle" style="width: 30vw; height: 30vw;">
-                <img src="/resources/images/Logo.png" style="width: 100%; height: 100%;"/>
+                <img src="/pogo/resources/images/Logo.png" style="width: 100%; height: 100%;"/>
             </div>
         </div>
 
@@ -81,7 +89,7 @@
 
     <script>
         var iconSelect;
-        IconSelect.COMPONENT_ICON_FILE_PATH = "/resources/images/icon-select/arrow.png";
+        IconSelect.COMPONENT_ICON_FILE_PATH = "/pogo/resources/images/icon-select/arrow.png";
 
         $('#form').submit(function() {
 
@@ -100,21 +108,16 @@
         });
 
         $(document).ready(function() {
-            var errorDivSelector = $('#errorDiv');
-            if(errorDivSelector.length > 0) {
-                setTimeout(function() {
-                    errorDivSelector.remove();
-                }, 5000);
-            }
+            <?php include($_SERVER['POGO_ROOT']."/resources/php_components/on_doc_ready_vanish.php"); ?>
 
             //selectedText.value = iconSelect.getSelectedValue();
 
             iconSelect = new IconSelect("team_select");
 
             var icons = [];
-            icons.push({'iconFilePath':'/resources/images/Mystic.png', 'iconValue':'mystic'});
-            icons.push({'iconFilePath':'/resources/images/Instinct.png', 'iconValue':'instinct'});
-            icons.push({'iconFilePath':'/resources/images/Valor.png', 'iconValue':'valor'});
+            icons.push({'iconFilePath':'/pogo/resources/images/Mystic.png', 'iconValue':'mystic'});
+            icons.push({'iconFilePath':'/pogo/resources/images/Instinct.png', 'iconValue':'instinct'});
+            icons.push({'iconFilePath':'/pogo/resources/images/Valor.png', 'iconValue':'valor'});
 
             iconSelect.refresh(icons);
         });

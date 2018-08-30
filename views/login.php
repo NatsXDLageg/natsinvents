@@ -1,27 +1,44 @@
 <?php
-    session_start();
 
-    if(isset($_SESSION['email']))
-    {
-        header("location:../index.php");
-        exit();
-    }
-    if (isset($_GET['error'])) {
-        $error = $_GET['error'];
-        switch ($error) {
-            case 1:
-                $errormessage = "E-mail ou senha incorretos";
-                break;
-            case 2:
-                $errormessage = "Não tente burlar o sistema";
-                break;
-            default:
-                $errormessage = "Erro desconhecido, por favor tente novamente (".$error.")";
-                break;
-        }
-    }
+if(!isset($server_var)) {
+    include($_SERVER['DOCUMENT_ROOT']."/../common_files/server_var.php");
+    $server_var = true;
+}
+session_start();
 
-    $cache_sufix = '?'.time();
+if(isset($_SESSION['email']))
+{
+    header("location:../index.php");
+    exit();
+}
+if (isset($_GET['error'])) {
+    $error = $_GET['error'];
+    switch ($error) {
+        case 1:
+            $errormessage = "E-mail ou senha incorretos";
+            break;
+        case 2:
+            $errormessage = "Usuário ainda não foi ativado";
+            break;
+        default:
+            $errormessage = "Erro desconhecido, por favor tente novamente (".$error.")";
+            break;
+    }
+}
+if (isset($_GET['warning'])) {
+    $warning = $_GET['warning'];
+    switch ($warning) {
+        case 1:
+            $warningmessage = "Conta criada. Por favor espere um administrador ativá-la";
+            break;
+        default:
+            $warningmessage = "Aviso desconhecido, por favor tente novamente (".$warning.")";
+            break;
+    }
+}
+
+$cache_sufix = '?'.time();
+
 ?>
 
 <!DOCTYPE HTML>
@@ -29,21 +46,22 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <link rel="stylesheet" type="text/css" href="/resources/css/w3.css">
-        <link rel="stylesheet" type="text/css" href="/resources/css/theme.css<?php echo $cache_sufix; ?>"><!-- ?random=@Environment.TickCount -->
-        <script src="/resources/js/jquery-3.3.1.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="/pogo/resources/css/w3.css">
+        <link rel="stylesheet" type="text/css" href="/pogo/resources/css/theme.css<?php echo $cache_sufix; ?>"><!-- ?random=@Environment.TickCount -->
+        <script src="/pogo/resources/js/jquery-3.3.1.min.js"></script>
         <title>Nats Invents - Login</title>
     </head>
     <body>
-        <?php include($_SERVER['DOCUMENT_ROOT']."/resources/php_components/error_top_container.php"); ?>
+        <?php include($_SERVER['POGO_ROOT']."/resources/php_components/error_top_container.php"); ?>
+        <?php include($_SERVER['POGO_ROOT']."/resources/php_components/warning_top_container.php"); ?>
         <div class="w3-display-container w3-col w3-half w3-hide-small theme-bg" style="height: 100vh;">
             <div class="w3-display-middle" style="width: 30vw; height: 30vw;">
-                <img src="/resources/images/Logo.png" style="width: 100%; height: 100%;"/>
+                <img src="/pogo/resources/images/Logo.png" style="width: 100%; height: 100%;"/>
             </div>
         </div>
         <div class="w3-display-container w3-col w3-half" style="padding: 0; height: 100vh;">
             <div class="w3-display-middle w3-mobile">
-                <form action="/php_posts/post_login.php" method="post">
+                <form action="/pogo/php_posts/post_login.php" method="post">
                     <div class="w3-container w3-padding">
                         <h2 class="theme-text">Login</h2>
                     </div>
@@ -75,12 +93,7 @@
     <script>
 
         $(document).ready(function() {
-            var errorDivSelector = $('#errorDiv');
-            if(errorDivSelector.length > 0) {
-                setTimeout(function() {
-                    errorDivSelector.remove();
-                }, 5000);
-            }
+            <?php include($_SERVER['POGO_ROOT']."/resources/php_components/on_doc_ready_vanish.php"); ?>
         });
     </script>
 </html>
