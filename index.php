@@ -12,6 +12,8 @@ if(!isset($check_login)) {
 
 $cache_sufix = '?'.time();
 
+$admin = ($_SESSION['priority'] === 999);
+
 ?>
 
 
@@ -30,9 +32,15 @@ $cache_sufix = '?'.time();
     <?php include($pogo_path."/resources/php_components/main_top_header.php"); ?>
 
     <div class="w3-container w3-padding-16">
-        <form action="/pogo/views/shinylist.php">
-            <input type="button" class="button-all button-tertiary" value="Shiny List"/>
-        </form>
+        <div>
+            <button class="button-all button-tertiary"><a href="/pogo/views/shinylist.php">Lista de Shinies</a></button>
+        </div>
+
+    <?php if($admin === true) { ?>
+        <div>
+            <button class="button-all button-tertiary"><a href="/pogo/views_admin/shinylistadmin.php">Administrar Shinies Disponíveis</a></button>
+        </div>
+    <?php } ?>
     </div>
 
     <?php include($pogo_path."/resources/php_components/main_bottom_footer.php"); ?>
@@ -41,12 +49,7 @@ $cache_sufix = '?'.time();
 <script>
 
     $(document).ready(function() {
-        var errorDivSelector = $('#errorDiv');
-        if(errorDivSelector.length > 0) {
-            setTimeout(function() {
-                errorDivSelector.remove();
-            }, 5000);
-        }
+        <?php include($pogo_path."/resources/php_components/on_doc_ready_vanish.php"); ?>
     });
 </script>
 </html>

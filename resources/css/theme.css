@@ -31,6 +31,9 @@
     -o-transition: all .2s ease-out;
     transition: all .2s ease-out
 }
+.button-all>a {
+    text-decoration: none !important;
+}
 .button-main {
     background-color: teal;
     color: white;

@@ -5,9 +5,24 @@ if(!isset($server_var)) {
     $server_var = true;
 }
 
-if(!isset($check_login)) {
+if(!isset($check_login_admin)) {
     include($pogo_path . "/php_posts/check_login_admin.php");
-    $check_login = true;
+    $check_login_admin = true;
+}
+
+if (isset($_GET['error'])) {
+    $error = $_GET['error'];
+    switch ($error) {
+        case 1:
+            $errormessage = "Parâmetros (pokemon) incorreto";
+            break;
+        case 2:
+            $errormessage = "Parâmetros (senha) incorreto";
+            break;
+        default:
+            $errormessage = "Erro desconhecido, por favor tente novamente (".$error.")";
+            break;
+    }
 }
 
 $cache_sufix = '?'.time();
@@ -65,12 +80,7 @@ $cache_sufix = '?'.time();
 <script>
 
     $(document).ready(function() {
-        var errorDivSelector = $('#errorDiv');
-        if(errorDivSelector.length > 0) {
-            setTimeout(function() {
-                errorDivSelector.remove();
-            }, 5000);
-        }
+        <?php include($pogo_path."/resources/php_components/on_doc_ready_vanish.php"); ?>
 
         $.post( "/pogo/php_posts/post_pokemons.php", {
             operation: 'get_pokemons_by_name'
@@ -94,12 +104,12 @@ $cache_sufix = '?'.time();
     });
 
     $('#form').submit(function() {
-        console.log($('#pkmn_list').val());
+        console.log($(this).serialize());
         return false;
         if($('#pkmn_list').val() == 'none') {
             alert("Por favor escolha um pokemon");
             return false;
         }
-    }
+    });
 </script>
 </html>

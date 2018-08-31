@@ -41,12 +41,7 @@ $cache_sufix = '?'.time();
 <script>
 
     $(document).ready(function() {
-        var errorDivSelector = $('#errorDiv');
-        if(errorDivSelector.length > 0) {
-            setTimeout(function() {
-                errorDivSelector.remove();
-            }, 5000);
-        }
+        <?php include($pogo_path."/resources/php_components/on_doc_ready_vanish.php"); ?>
     });
 </script>
 </html>
