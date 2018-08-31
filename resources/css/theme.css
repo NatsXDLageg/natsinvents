@@ -17,41 +17,95 @@
     width: 350px;
 }
 
-.button-main {
+.button-all {
     min-width: 64px;
     height: 36px;
 
-    padding: 6px 16px 8px 16px;
-
     font-size: 16px;
+    line-height: 16px;
     font-family: "Segoe UI", Arial, sans-serif;
+
+    -webkit-transition: all .2s ease-out;
+    -moz-transition: all .2s ease-out;
+    -ms-transition: all .2s ease-out;
+    -o-transition: all .2s ease-out;
+    transition: all .2s ease-out
 }
-.button-main.theme-bg:hover {
-    background-color: #008c8c;
+.button-main {
+    background-color: teal;
+    color: white;
 }
-.button-main.theme-bg:focus {
-    background-color: #009999;
+.button-main:hover {
+    background-color: #009999 !important;
+    color: white !important;
+    outline:0 !important;
 }
-.button-main.theme-bg:disabled {
-    background-color: #959799;
-    color: #5d5f61;
+.button-main:focus {
+    background-color: #19adab !important;
+    color: white !important;
+    outline:0 !important;
+}
+.button-main:active {
+    background-color: #19c3c1 !important;
+    color: white !important;
+    outline:0 !important;
+}
+.button-main:disabled {
+    background-color: #959799 !important;
+    color: #5d5f61 !important;
 }
 
-.button-outlined {
-
+.button-secondary {
+    background-color: transparent;
+    color: teal;
+    border: teal 1px solid;
+    border-radius: 3px;
+}
+.button-secondary:hover {
+    background-color: rgba(0, 128, 128, 0.05) !important;
+    color: teal !important;
+    outline:0 !important;
+}
+.button-secondary:focus {
+    background-color: rgba(0, 128, 128, 0.10) !important;
+    color: teal !important;
+    outline:0 !important;
+}
+.button-secondary:active {
+    background-color: rgba(0, 128, 128, 0.20) !important;
+    color: teal !important;
+    outline:0 !important;
+}
+.button-secondary:disabled {
+    border: #5d5f61 1px solid !important;
+    color: #5d5f61 !important;
 }
 
-.button-text {
-
+.button-tertiary {
+    background-color: transparent;
+    color: teal;
+    border-width: 0;
+    border-radius: 3px;
+    text-decoration: none !important;
 }
-.button-text:hover {
-    text-decoration: underline;
+.button-tertiary:hover {
+    background-color: rgba(0, 128, 128, 0.05) !important;
+    color: teal !important;
+    outline:0 !important;
 }
-.button-text:focus {
-    text-decoration: underline;
+.button-tertiary:focus {
+    background-color: rgba(0, 128, 128, 0.10) !important;
+    color: teal !important;
+    outline:0 !important;
 }
-.button-text:disabled {
-
+.button-tertiary:active {
+    background-color: rgba(0, 128, 128, 0.20) !important;
+    color: teal !important;
+    outline:0 !important;
+}
+.button-tertiary:disabled {
+    border: #5d5f61 1px solid !important;
+    color: #5d5f61 !important;
 }
 
 div.top-container {

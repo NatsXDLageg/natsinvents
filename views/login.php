@@ -52,8 +52,8 @@ $cache_sufix = '?'.time();
         <title>Nats Invents - Login</title>
     </head>
     <body>
-        <?php include($_SERVER['POGO_ROOT']."/resources/php_components/error_top_container.php"); ?>
-        <?php include($_SERVER['POGO_ROOT']."/resources/php_components/warning_top_container.php"); ?>
+        <?php include($pogo_path."/resources/php_components/error_top_container.php"); ?>
+        <?php include($pogo_path."/resources/php_components/warning_top_container.php"); ?>
         <div class="w3-display-container w3-col w3-half w3-hide-small theme-bg" style="height: 100vh;">
             <div class="w3-display-middle" style="width: 30vw; height: 30vw;">
                 <img src="/pogo/resources/images/Logo.png" style="width: 100%; height: 100%;"/>
@@ -75,10 +75,10 @@ $cache_sufix = '?'.time();
                     </div>
                     <div class="w3-row w3-padding">
                         <div class="w3-col w3-half" style="padding-right: 5px;">
-                            <input type="submit" class="w3-button theme-bg button-main" value="ENTRAR" style="width: 100%"/>
+                            <input type="submit" class="w3-button button-all button-main" value="ENTRAR" style="width: 100%"/>
                         </div>
                         <div class="w3-col w3-half" style="padding-left: 5px;">
-                            <input type="submit" class="w3-button theme-bg-light button-main" value="REGISTRAR-SE" formaction="./register.php" style="width: 100%"/>
+                            <input type="submit" class="w3-button button-all button-secondary" value="REGISTRAR-SE" formaction="./register.php" style="width: 100%"/>
                         </div>
                     </div>
                 </form>
@@ -93,7 +93,7 @@ $cache_sufix = '?'.time();
     <script>
 
         $(document).ready(function() {
-            <?php include($_SERVER['POGO_ROOT']."/resources/php_components/on_doc_ready_vanish.php"); ?>
+            <?php include($pogo_path."/resources/php_components/on_doc_ready_vanish.php"); ?>
         });
     </script>
 </html>

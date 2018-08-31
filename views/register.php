@@ -44,8 +44,8 @@ $cache_sufix = '?'.time();
         <title>Nats Invents - Registrar</title>
     </head>
     <body>
-        <?php include($_SERVER['POGO_ROOT']."/resources/php_components/error_top_container.php"); ?>
-        <?php include($_SERVER['POGO_ROOT']."/resources/php_components/warning_top_container.php"); ?>
+        <?php include($pogo_path."/resources/php_components/error_top_container.php"); ?>
+        <?php include($pogo_path."/resources/php_components/warning_top_container.php"); ?>
         <div class="w3-display-container w3-col w3-half" style="padding: 0; height: 100vh;">
             <div class="w3-display-middle w3-mobile">
                 <form id="form" action="/pogo/php_posts/post_register.php" method="post">
@@ -108,7 +108,7 @@ $cache_sufix = '?'.time();
         });
 
         $(document).ready(function() {
-            <?php include($_SERVER['POGO_ROOT']."/resources/php_components/on_doc_ready_vanish.php"); ?>
+            <?php include($pogo_path."/resources/php_components/on_doc_ready_vanish.php"); ?>
 
             //selectedText.value = iconSelect.getSelectedValue();
 

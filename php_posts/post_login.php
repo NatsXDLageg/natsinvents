@@ -15,7 +15,7 @@ if (!$_SERVER['REQUEST_METHOD'] === 'POST') {
 $email = $_POST['email'];
 $userpwd = $_POST['password'];
 
-$statement = $mysqli->prepare("Select senha, status from usuario where email = ?");
+$statement = $mysqli->prepare("Select senha, status, prioridade from usuario where email = ?");
 $statement->bind_param('s', $email);
 $result = $statement->execute();
 
@@ -31,6 +31,7 @@ if($result) {
             if ($row["status"] == '1') {
 
                 $_SESSION['email'] = $email;
+                $_SESSION['priority'] = intval($row["prioridade"]);
 
                 if (isset($_SESSION['start_path'])) {
                     $location = "Location:" . $_SESSION['start_path'];
