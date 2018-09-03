@@ -57,10 +57,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //
         case 'get_shinies_by_dex_evo':
             if(isset($_POST['get_user_list'])) {
-                $query = "Select id, nome, shinyimageurl from pokemon where hasshiny = 1 order by pokedexevo";
+                if(!isset($_SESSION['email'])) {
+                    echo json_encode(array('status' => 0));
+                    exit();
+                }
+
+                $query = "Select p.id, p.nome, p.shinyimageurl, COALESCE(uhp.has_shiny_too, 0) as 'marked' from pokemon p left join usuario_has_pokemon uhp on uhp.id_pokemon = p.id where p.hasshiny = 1 order by pokedexevo";
             }
             else {
-                $query = "Select id, nome, shinyimageurl from pokemon where hasshiny = 1 order by pokedexevo";
+                $query = "Select id, nome, shinyimageurl, 0 as 'marked' from pokemon where hasshiny = 1 order by pokedexevo";
             }
             $statement = $mysqli->prepare($query);
             $result = $statement->execute();
@@ -236,7 +241,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // SQL error
                 header("Location:/pogo/views_admin/shinylistadmin.php?error=3");
             }
+            break;
 
+        //    _   _ ___ ___   _ _____ ___   ___ _  _ ___ _  _ ___ ___ ___   _   _ ___ ___ ___
+        //   | | | | _ \   \ /_\_   _| __| / __| || |_ _| \| |_ _| __/ __| | | | / __| __| _ \
+        //   | |_| |  _/ |) / _ \| | | _|  \__ \ __ || || .` || || _|\__ \ | |_| \__ \ _||   /
+        //    \___/|_| |___/_/ \_\_| |___| |___/_||_|___|_|\_|___|___|___/  \___/|___/___|_|_\
+        //
+        case 'update_shinies_user':
+            if(isset($_SESSION['email'])) {
+                $usermail = $_SESSION['email'];
+            }
+            else {
+                echo json_encode(array('status' => 0));
+                exit();
+            }
+
+            if(isset($_POST['list'])) {
+                $list = $_POST['list'];
+            }
+            else {
+                echo json_encode(array('status' => 0));
+                exit();
+            }
+
+            echo json_encode(array('status' => 1, 'var' => var_dump($list)));
             break;
         default:
             header("Location:/pogo/views/error.php");

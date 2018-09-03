@@ -71,11 +71,13 @@ $cache_sufix = '?'.time();
     <?php include($pogo_path."/resources/php_components/error_top_container.php"); ?>
     <?php include($pogo_path."/resources/php_components/main_top_header.php"); ?>
     <div class="w3-container w3-padding-16">
-        <button class="w3-button button-all button-main">Salvar</button>
+        <button class="w3-button button-all button-main update-list">Salvar</button>
     </div>
 
-    <div id="shiny_list" class="w3-container">
+    <div id="shiny_list" class="w3-container"></div>
 
+    <div class="w3-container w3-padding-16">
+        <button class="w3-button button-all button-main update-list">Salvar</button>
     </div>
 
     <?php include($pogo_path."/resources/php_components/main_bottom_footer.php"); ?>
@@ -91,25 +93,64 @@ $cache_sufix = '?'.time();
             get_user_list: 'true'
         })
         .done(function(data) {
+            console.log(data);
             if(data['status'] == 1) {
                 var html = '';
                 for(let row of data['shinies']) {
                     if(row['shinyimageurl'] == '') {
                         row['shinyimageurl'] = 'https://cdn3.iconfinder.com/data/icons/modifiers-add-on-1/48/v-17-512.png';
                     }
-                    html += '<div class="w3-col s6 m4 l2 w3-center marked">' +
+                    let marked = '';
+                    let checked = '';
+                    if(row['marked'] === '1') {
+                        marked = ' marked';
+                        checked = ' checked';
+                    }
+                    html += '<div class="w3-col s6 m4 l2 w3-center shiny-pokemon'+marked+'" data-id="'+row['id']+'">' +
                         '       <img src="' + row['shinyimageurl'] + '" width="100%"/>' +
                         '       <p>' + row['nome'] + '</p>' +
-                        '       <input type="checkbox" class="w3-check" style="margin-bottom: 20px;"/>' +
+                        '       <input type="checkbox" class="w3-check check-has" style="margin-bottom: 20px;"'+checked+'/>' +
                         '</div>';
                 }
 
                 $('#shiny_list').append(html);
+
+                $('#shiny_list .check-has').on('change', function() {
+                    let fetch = $(this).closest('.shiny-pokemon');
+                    if(this.checked) {
+                        fetch.addClass('marked');
+                    }
+                    else {
+                        fetch.removeClass('marked');
+                    }
+                });
             }
         })
         .fail(function() {
             alert( "error" );
         });
+    });
+
+    $('.update-list').on('click', function() {
+        var has_list = new Array();
+        let fetch = $('#shiny_list .shiny-pokemon');
+
+        for (let i = 0; i < fetch.length; i++) {
+            has_list.push(fetch.eq(i).attr('data-id'));
+        }
+
+        $.post( "/pogo/php_posts/post_pokemons.php", {
+            'operation': 'update_shinies_user',
+            'list[]': has_list
+        })
+        .done(function(data) {
+            console.log(data);
+        })
+        .fail(function() {
+            alert( "error" );
+        });
+
+        console.log(has_list);
     });
 </script>
 </html>
