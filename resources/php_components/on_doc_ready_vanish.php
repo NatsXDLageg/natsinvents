@@ -1,8 +1,9 @@
 <?php
 
-echo "  var errorDivSelector = $('.vanish');
-        if(errorDivSelector.length > 0) {
+echo "  var vanishDivSelector = $('.vanish');
+        if(vanishDivSelector.length > 0) {
+            history.replaceState(null, document.title, '".$_SERVER['PHP_SELF']."');
             setTimeout(function() {
-                errorDivSelector.remove();
+                vanishDivSelector.remove();
             }, 5000);
         }";

@@ -7,41 +7,36 @@ if(!isset($php_connection)) {
     $php_connection = true;
 }
 
-if (!$_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    die("Método de requisição incorreto");
-}
-
 // Remove after
 if(!isset($mysqli)) {
     $mysqli = new mysqli();
 }
 
-$operation = $_POST['operation'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $operation = $_POST['operation'];
 
-header('Content-Type: application/json');
-switch ($operation) {
+    header('Content-Type: application/json');
+    switch ($operation) {
 
-    //     ___ ___ _____   ___  ___  _  _____ __  __  ___  _  _ ___   _____   __  ___  _____  __
-    //    / __| __|_   _| | _ \/ _ \| |/ / __|  \/  |/ _ \| \| / __| | _ ) \ / / |   \| __\ \/ /
-    //   | (_ | _|  | |   |  _/ (_) | ' <| _|| |\/| | (_) | .` \__ \ | _ \\ V /  | |) | _| >  <
-    //    \___|___| |_|   |_|  \___/|_|\_\___|_|  |_|\___/|_|\_|___/ |___/ |_|   |___/|___/_/\_\
-    //
-    case 'get_pokemons_by_dex':
-        break;
+        //     ___ ___ _____   ___  ___  _  _____ __  __  ___  _  _ ___   _____   __  ___  _____  __
+        //    / __| __|_   _| | _ \/ _ \| |/ / __|  \/  |/ _ \| \| / __| | _ ) \ / / |   \| __\ \/ /
+        //   | (_ | _|  | |   |  _/ (_) | ' <| _|| |\/| | (_) | .` \__ \ | _ \\ V /  | |) | _| >  <
+        //    \___|___| |_|   |_|  \___/|_|\_\___|_|  |_|\___/|_|\_|___/ |___/ |_|   |___/|___/_/\_\
+        //
+        case 'get_pokemons_by_dex':
+            break;
 
-    //     ___ ___ _____   ___  ___  _  _____ __  __  ___  _  _ ___   _____   __  _  _   _   __  __ ___
-    //    / __| __|_   _| | _ \/ _ \| |/ / __|  \/  |/ _ \| \| / __| | _ ) \ / / | \| | /_\ |  \/  | __|
-    //   | (_ | _|  | |   |  _/ (_) | ' <| _|| |\/| | (_) | .` \__ \ | _ \\ V /  | .` |/ _ \| |\/| | _|
-    //    \___|___| |_|   |_|  \___/|_|\_\___|_|  |_|\___/|_|\_|___/ |___/ |_|   |_|\_/_/ \_\_|  |_|___|
-    //
-    case 'get_pokemons_by_name':
-        $statement = $mysqli->prepare("Select id, nome from pokemon order by nome");
-        $result = $statement->execute();
+        //     ___ ___ _____   ___  ___  _  _____ __  __  ___  _  _ ___   _____   __  _  _   _   __  __ ___
+        //    / __| __|_   _| | _ \/ _ \| |/ / __|  \/  |/ _ \| \| / __| | _ ) \ / / | \| | /_\ |  \/  | __|
+        //   | (_ | _|  | |   |  _/ (_) | ' <| _|| |\/| | (_) | .` \__ \ | _ \\ V /  | .` |/ _ \| |\/| | _|
+        //    \___|___| |_|   |_|  \___/|_|\_\___|_|  |_|\___/|_|\_|___/ |___/ |_|   |_|\_/_/ \_\_|  |_|___|
+        //
+        case 'get_pokemons_by_name':
+            $statement = $mysqli->prepare("Select id, nome from pokemon order by nome");
+            $result = $statement->execute();
 
-        if($result) {
-            $result = $statement->get_result();
             if($result) {
+                $result = $statement->get_result();
                 $pokemons = array();
                 while($row = $result->fetch_array(MYSQLI_ASSOC)) {
                     $pokemons[] = array_map("utf8_encode", $row);
@@ -50,87 +45,246 @@ switch ($operation) {
                 echo json_encode(array('status' => 1, 'pokemons' => $pokemons));
             }
             else {
-                // Couldn't get resultset
-                echo json_encode(array('status' => -1));
+                // SQL error
+                echo json_encode(array('status' => 0));
             }
-        }
-        else {
-            // SQL error
-            echo json_encode(array('status' => 0));
-        }
-        break;
+            break;
 
-    //    ___ ___ _____   _  _ _____      __  ___ _  _ ___ _  ___   __
-    //   / __| __|_   _| | \| | __\ \    / / / __| || |_ _| \| \ \ / /
-    //   \__ \ _|  | |   | .` | _| \ \/\/ /  \__ \ __ || || .` |\ V /
-    //   |___/___| |_|   |_|\_|___| \_/\_/   |___/_||_|___|_|\_| |_|
-    //
-    case 'set_new_shiny':
-        $pokemon_id = isset($_POST['pokemon']) ? $_POST['pokemon'] : header("Location:/pogo/views_admin/shinylistadmin.php?error=1");
-        $pokemon_id = intval($pokemon_id);
-        $apply_to_family = isset($_POST['evoshiny']) && $_POST['evoshiny'] == 'on';
-        $userpwd = isset($_POST['password']) ? $_POST['password'] : header("Location:/pogo/views_admin/shinylistadmin.php?error=2");
+        //     ___ ___ _____   ___ _  _ ___ _  _ ___ ___ ___   _____   __  ___  _____  __  _____   _____
+        //    / __| __|_   _| / __| || |_ _| \| |_ _| __/ __| | _ ) \ / / |   \| __\ \/ / | __\ \ / / _ \
+        //   | (_ | _|  | |   \__ \ __ || || .` || || _|\__ \ | _ \\ V /  | |) | _| >  <  | _| \ V / (_) |
+        //    \___|___| |_|   |___/_||_|___|_|\_|___|___|___/ |___/ |_|   |___/|___/_/\_\ |___| \_/ \___/
+        //
+        case 'get_shinies_by_dex_evo':
+            if(isset($_POST['get_user_list'])) {
+                $query = "Select id, nome, shinyimageurl from pokemon where hasshiny = 1 order by pokedexevo";
+            }
+            else {
+                $query = "Select id, nome, shinyimageurl from pokemon where hasshiny = 1 order by pokedexevo";
+            }
+            $statement = $mysqli->prepare($query);
+            $result = $statement->execute();
 
-        $statement = $mysqli->prepare("Select senha, prioridade from usuario where email = ?");
-        $statement->bind_param('s', $_SESSION['email']);
-        $result = $statement->execute();
-
-        if($result) {
-            $result = $statement->get_result();
             if($result) {
-                if ($result->num_rows == 1) {
+                $result = $statement->get_result();
+                $pokemons = array();
+                while($row = $result->fetch_array(MYSQLI_ASSOC)) {
+                    $pokemons[] = array_map("utf8_encode", $row);
+                }
+
+                echo json_encode(array('status' => 1, 'shinies' => $pokemons));
+            }
+            else {
+                // SQL error
+                echo json_encode(array('status' => 0));
+            }
+            break;
+
+        //    ___ ___ _____   _  _ _____      __  ___ _  _ ___ _  ___   __
+        //   / __| __|_   _| | \| | __\ \    / / / __| || |_ _| \| \ \ / /
+        //   \__ \ _|  | |   | .` | _| \ \/\/ /  \__ \ __ || || .` |\ V /
+        //   |___/___| |_|   |_|\_|___| \_/\_/   |___/_||_|___|_|\_| |_|
+        //
+        case 'set_new_shiny':
+            if(isset($_POST['pokemon'])) {
+                $pokemon_id = $_POST['pokemon'];
+                $pokemon_id = intval($pokemon_id);
+            }
+            else {
+                header("Location:/pogo/views_admin/shinylistadmin.php?error=1");
+                exit();
+            }
+            $apply_to_family = isset($_POST['evoshiny']) && $_POST['evoshiny'] == 'on';
+            if(isset($_POST['password'])) {
+                $userpwd = $_POST['password'];
+            }
+            else {
+                header("Location:/pogo/views_admin/shinylistadmin.php?error=2");
+                exit();
+            }
+
+            $statement = $mysqli->prepare("Select senha, prioridade from usuario where email = ?");
+            $statement->bind_param('s', $_SESSION['email']);
+            $result = $statement->execute();
+
+            if($result) {
+                $result = $statement->get_result();
+                if($result->num_rows == 1) {
                     $row = $row = $result->fetch_array(MYSQLI_ASSOC);
 
                     if($row['senha'] == md5($userpwd)) {
-                        if($row['prioridade'] != '999') {
+                        if($row['prioridade'] == '999') {
                             // All right for user
 
-                            // I DONT KNOW HOW TO DO THIS
+                            // Will search for all members of family
+                            // Then update all fetched elements
 
-                            // Update pokemon (then search for evolutions)
-                            $statement = $mysqli->prepare("Update pokemon set hasshiny = 1 where id = ?");
-                            $statement->bind_param('i', $pokemon_id);
-                            $result = $statement->execute();
+                            $evolution_family = array();
+                            $evolution_family[] = $pokemon_id;
 
-                            if($result) {
-                                // Updated. Now will search for evolutions
-                                $statement = $mysqli->prepare("Select id from pokemon where ");
+                            if($apply_to_family) {
+
+                                // Search for current pokemon
+                                $statement = $mysqli->prepare("Select id from pokemon where id = ? and evolve is not null");
                                 $statement->bind_param('i', $pokemon_id);
                                 $result = $statement->execute();
 
-                            }
-                            else {
-                                // SQL error
+                                if (!$result) {
+                                    // SQL error
+                                    header("Location:/pogo/views_admin/shinylistadmin.php?error=3");
+                                    exit();
+                                }
 
+                                $result = $statement->get_result();
+                                if ($result->num_rows == 1) {
+                                    // If the pokemon has evolution information, so it has a pre-evolution
+                                    $evolution_family[] = $pokemon_id - 1;
+
+                                    // Do the same one more time
+                                    $current_id = $pokemon_id - 1;
+
+                                    $statement = $mysqli->prepare("Select id from pokemon where id = ? and evolve is not null");
+                                    $statement->bind_param('i', $current_id);
+                                    $result = $statement->execute();
+
+                                    if (!$result) {
+                                        // SQL error
+                                        header("Location:/pogo/views_admin/shinylistadmin.php?error=3");
+                                        exit();
+                                    }
+
+                                    $result = $statement->get_result();
+                                    if ($result->num_rows == 1) {
+                                        // If the pokemon has evolution information, so it has a pre-evolution
+                                        $evolution_family[] = $current_id - 1;
+                                    }
+                                }
+
+                                // Search for evolution
+                                $current_id = $pokemon_id + 1;
+                                $statement = $mysqli->prepare("Select id from pokemon where id = ? and evolve is not null");
+                                $statement->bind_param('i', $current_id);
+                                $result = $statement->execute();
+
+                                if (!$result) {
+                                    // SQL error
+                                    header("Location:/pogo/views_admin/shinylistadmin.php?error=3");
+                                    exit();
+                                }
+
+                                $result = $statement->get_result();
+                                if ($result->num_rows == 1) {
+                                    // The evolution must be considered
+                                    $evolution_family[] = $current_id;
+
+                                    // Do the same one more time
+                                    $current_id = $pokemon_id + 2;
+                                    $statement = $mysqli->prepare("Select id from pokemon where id = ? and evolve is not null");
+                                    $statement->bind_param('i', $current_id);
+                                    $result = $statement->execute();
+
+                                    if (!$result) {
+                                        // SQL error
+                                        header("Location:/pogo/views_admin/shinylistadmin.php?error=3");
+                                        exit();
+                                    }
+
+                                    $result = $statement->get_result();
+                                    if ($result->num_rows == 1) {
+                                        // The evolution must be considered
+                                        $evolution_family[] = $current_id;
+                                    }
+                                }
                             }
+
+                            $mysqli->autocommit(false);
+
+                            // Update pokemon
+                            foreach ($evolution_family as $el) {
+                                $statement = $mysqli->prepare("Update pokemon set hasshiny = 1 where id = ?");
+                                $statement->bind_param('i', $el);
+                                $result = $statement->execute();
+
+                                if(!$result) {
+                                    // SQL error
+                                    header("Location:/pogo/views_admin/shinylistadmin.php?error=3");
+                                    $mysqli->rollback();
+                                    exit();
+                                }
+                            }
+
+                            // Success
+                            $mysqli->commit();
+                            header("Location:/pogo/views_admin/shinylistadmin.php?success=1");
                         }
                         else {
                             // Not admin
-
+                            header("Location:/pogo/views/shinylist.php?error=6");
                         }
                     }
                     else {
                         // Wrong password
-
+                        header("Location:/pogo/views_admin/shinylistadmin.php?error=5");
                     }
                 }
                 else {
                     // No row fetch
-
+                    header("Location:/pogo/views_admin/shinylistadmin.php?error=4");
                 }
             }
             else {
-                // Couldn't get resultset
-
+                // SQL error
+                header("Location:/pogo/views_admin/shinylistadmin.php?error=3");
             }
-        }
-        else {
-            // SQL error
 
-        }
-
-        break;
-    default:
-        echo json_encode(array('status' => 0));
-        break;
+            break;
+        default:
+            header("Location:/pogo/views/error.php");
+            break;
+    }
 }
+else if($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $operation = $_GET['operation'];
+
+    header('Content-Type: application/json');
+    switch ($operation) {
+
+
+        //    ___ ___ __  __  _____   _____   ___ _  _ ___ _  ___   __
+        //   | _ \ __|  \/  |/ _ \ \ / / __| / __| || |_ _| \| \ \ / /
+        //   |   / _|| |\/| | (_) \ V /| _|  \__ \ __ || || .` |\ V /
+        //   |_|_\___|_|  |_|\___/ \_/ |___| |___/_||_|___|_|\_| |_|
+        //
+        case 'remove_shiny':
+            if(isset($_GET['pokemon'])) {
+                $pokemon_id = $_GET['pokemon'];
+                $pokemon_id = intval($pokemon_id);
+            }
+            else {
+                header("Location:/pogo/views_admin/shinylistadmin.php?error=1");
+                exit();
+            }
+
+            $statement = $mysqli->prepare("Update pokemon set hasshiny = 0 where id = ?");
+            $statement->bind_param('i', $pokemon_id);
+            $result = $statement->execute();
+
+            if($result) {
+                header("Location:/pogo/views_admin/shinylistadmin.php?success=1");
+            }
+            else {
+                // SQL error
+                header("Location:/pogo/views_admin/shinylistadmin.php?error=3");
+            }
+            break;
+        default:
+            header("Location:/pogo/views/error.php");
+            break;
+    }
+
+}
+else {
+    die("Método de requisição incorreto");
+}
+
+

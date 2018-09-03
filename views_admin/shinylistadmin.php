@@ -19,8 +19,28 @@ if (isset($_GET['error'])) {
         case 2:
             $errormessage = "Parâmetros (senha) incorreto";
             break;
+        case 3:
+            $errormessage = "Erro de SQL";
+            break;
+        case 4:
+            $errormessage = "Pokemon não encontrado";
+            break;
+        case 5:
+            $errormessage = "Senha incorreta";
+            break;
         default:
             $errormessage = "Erro desconhecido, por favor tente novamente (".$error.")";
+            break;
+    }
+}
+if (isset($_GET['success'])) {
+    $successmessage = "Sucesso!<br/>";
+    $success = $_GET['success'];
+    switch ($success) {
+        case 1:
+            $successmessage .= "Dados atualizados";
+            break;
+        default:
             break;
     }
 }
@@ -39,8 +59,20 @@ $cache_sufix = '?'.time();
     <link rel="stylesheet" type="text/css" href="/pogo/resources/css/theme.css<?php echo $cache_sufix ?>"><!-- ?random=@Environment.TickCount -->
     <script src="/pogo/resources/js/jquery-3.3.1.min.js"></script>
     <title>Shiny List - Admin</title>
+    <style>
+        .close_button {
+            position:absolute;
+            left:5px;
+            top:5px;
+        }
+        .close_button_parent {
+            position:relative;
+        }
+    </style>
+</head>
 </head>
 <body>
+    <?php include($pogo_path."/resources/php_components/success_top_container.php"); ?>
     <?php include($pogo_path."/resources/php_components/error_top_container.php"); ?>
     <?php include($pogo_path."/resources/php_components/main_top_header.php"); ?>
 
@@ -56,7 +88,7 @@ $cache_sufix = '?'.time();
             </div>
 
             <div class="w3-container w3-padding">
-                <input type="checkbox" id="check" name="evoshiny" class="w3-check"/>
+                <input type="checkbox" id="check" name="evoshiny" class="w3-check" checked/>
                 <label for="check"> Evoluções também possuem forma shiny? </label>
             </div>
             <br/>
@@ -72,6 +104,10 @@ $cache_sufix = '?'.time();
                 <input type="submit" class="w3-button theme-bg button-main" value="CONFIRMAR"/>
             </div>
         </form>
+
+        <div id="shiny_list" class="w3-container w3-padding-16">
+
+        </div>
     </div>
 
     <?php include($pogo_path."/resources/php_components/main_bottom_footer.php"); ?>
@@ -86,7 +122,6 @@ $cache_sufix = '?'.time();
             operation: 'get_pokemons_by_name'
         })
         .done(function(data) {
-            console.log(data);
             if(data['status'] == 1) {
                 var html = '';
                 for(let row of data['pokemons']) {
@@ -101,11 +136,36 @@ $cache_sufix = '?'.time();
         // .always(function() {
         //     alert( "finished" );
         // });
+
+
+        $.post( "/pogo/php_posts/post_pokemons.php", {
+            operation: 'get_shinies_by_dex_evo'
+        })
+        .done(function(data) {
+            if(data['status'] == 1) {
+                var html = '';
+                for(let row of data['shinies']) {
+                    if(row['shinyimageurl'] == '') {
+                        row['shinyimageurl'] = 'https://cdn3.iconfinder.com/data/icons/modifiers-add-on-1/48/v-17-512.png';
+                    }
+                    html += '<div class="w3-col s6 m4 l2 w3-center close_button_parent">' +
+                        '       <a href="/pogo/php_posts/post_pokemons.php?operation=remove_shiny&pokemon=' + row['id'] + '" class="close_button">' +
+                        '           <button class="button-all button-tertiary">x</button>' +
+                        '       </a>' +
+                        '       <img src="' + row['shinyimageurl'] + '" width="100%"/>' +
+                        '       <p>' + row['nome'] + '</p>' +
+                        '</div>';
+                }
+
+                $('#shiny_list').append(html);
+            }
+        })
+        .fail(function() {
+            alert( "error" );
+        });
     });
 
     $('#form').submit(function() {
-        console.log($(this).serialize());
-        return false;
         if($('#pkmn_list').val() == 'none') {
             alert("Por favor escolha um pokemon");
             return false;
