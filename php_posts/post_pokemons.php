@@ -265,7 +265,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit();
             }
 
-            echo json_encode(array('status' => 1, 'var' => var_dump($list)));
+            //It worked to get this list as an array!
+
+
+            echo json_encode(array('status' => 1, 'var' => print_r($list, TRUE)));
             break;
         default:
             header("Location:/pogo/views/error.php");
