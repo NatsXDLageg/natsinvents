@@ -55,6 +55,7 @@ $cache_sufix = '?'.time();
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no">
     <link rel="stylesheet" type="text/css" href="/pogo/resources/css/w3.css">
     <link rel="stylesheet" type="text/css" href="/pogo/resources/css/theme.css<?php echo $cache_sufix ?>"><!-- ?random=@Environment.TickCount -->
     <script src="/pogo/resources/js/jquery-3.3.1.min.js"></script>

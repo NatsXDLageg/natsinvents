@@ -253,22 +253,106 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $usermail = $_SESSION['email'];
             }
             else {
-                echo json_encode(array('status' => 0));
+                echo json_encode(array('status' => 0, 'message' => 'Missing param: email'));
                 exit();
             }
 
-            if(isset($_POST['list'])) {
-                $list = $_POST['list'];
+            if(isset($_POST['listhas'])) {
+                $listhas = $_POST['listhas'];
             }
             else {
-                echo json_encode(array('status' => 0));
+                echo json_encode(array('status' => 0, 'message' => 'Missing param: listhas'));
                 exit();
             }
 
-            //It worked to get this list as an array!
+            if(isset($_POST['listhasnt'])) {
+                $listhasnt = $_POST['listhasnt'];
+            }
+            else {
+                echo json_encode(array('status' => 0, 'message' => 'Missing param: listhasnt'));
+                exit();
+            }
 
+            $mysqli->autocommit(false);
 
-            echo json_encode(array('status' => 1, 'var' => print_r($list, TRUE)));
+            //List of pokemon the user has as shiny
+            $statementSelect = $mysqli->prepare("Select id_usuario from usuario_has_pokemon uhp left join usuario u on uhp.id_usuario = u.id where uhp.id_pokemon = ? and u.email = ?");
+            $statementInsert = $mysqli->prepare("Insert into usuario_has_pokemon(id_usuario, id_pokemon, has_shiny_too) select u.id, ?, ? from usuario u where u.email = ?");
+            $statementUpdate = $mysqli->prepare("Update usuario_has_pokemon set has_shiny_too = ? where id_usuario = ? and id_pokemon = ?");
+            foreach ($listhas as $el) {
+                $el = intval($el);
+                $statementSelect->bind_param('is', $el, $_SESSION['email']);
+                $result = $statementSelect->execute();
+                if(!$result) {
+                    echo json_encode(array('status' => 0, 'message' => 'Error in select query'));
+                    $mysqli->rollback();
+                    exit();
+                }
+
+                $value = 1;
+                $result = $statementSelect->get_result();
+                if($result->num_rows == 0) {
+                    // Insert
+                    $statementInsert->bind_param('iis', $el, $value, $_SESSION['email']);
+                    $result = $statementInsert->execute();
+                    if(!$result) {
+                        echo json_encode(array('status' => 0, 'message' => 'Error in insert query'));
+                        $mysqli->rollback();
+                        exit();
+                    }
+                }
+                else {
+                    // Update
+                    $row = $result->fetch_assoc();
+                    $userId = intval($row['id_usuario']);
+                    $statementUpdate->bind_param('iii', $value, $userId, $el);
+                    $result = $statementUpdate->execute();
+                    if(!$result) {
+                        echo json_encode(array('status' => 0, 'message' => 'Error in insert query'));
+                        $mysqli->rollback();
+                        exit();
+                    }
+                }
+            }
+
+            foreach ($listhasnt as $el) {
+                $el = intval($el);
+                $statementSelect->bind_param('is', $el, $_SESSION['email']);
+                $result = $statementSelect->execute();
+                if(!$result) {
+                    echo json_encode(array('status' => 0, 'message' => 'Error in select query'));
+                    $mysqli->rollback();
+                    exit();
+                }
+
+                $value = 0;
+                $result = $statementSelect->get_result();
+                if($result->num_rows == 0) {
+                    // Insert
+                    $statementInsert->bind_param('iis', $el, $value, $_SESSION['email']);
+                    $result = $statementInsert->execute();
+                    if(!$result) {
+                        echo json_encode(array('status' => 0, 'message' => 'Error in insert query'));
+                        $mysqli->rollback();
+                        exit();
+                    }
+                }
+                else {
+                    // Update
+                    $row = $result->fetch_assoc();
+                    $userId = intval($row['id_usuario']);
+                    $statementUpdate->bind_param('iii', $value, $userId, $el);
+                    $result = $statementUpdate->execute();
+                    if(!$result) {
+                        echo json_encode(array('status' => 0, 'message' => 'Error in insert query'));
+                        $mysqli->rollback();
+                        exit();
+                    }
+                }
+            }
+
+            $mysqli->commit();
+            echo json_encode(array('status' => 1));
             break;
         default:
             header("Location:/pogo/views/error.php");

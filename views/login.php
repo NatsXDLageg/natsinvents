@@ -46,10 +46,30 @@ $cache_sufix = '?'.time();
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, user-scalable=no">
         <link rel="stylesheet" type="text/css" href="/pogo/resources/css/w3.css">
         <link rel="stylesheet" type="text/css" href="/pogo/resources/css/theme.css<?php echo $cache_sufix; ?>"><!-- ?random=@Environment.TickCount -->
         <script src="/pogo/resources/js/jquery-3.3.1.min.js"></script>
         <title>Nats Invents - Login</title>
+        <style>
+
+            @media only screen and (min-width:600px ) {
+                #login_button_div {
+                    padding-right: 5px;
+                }
+                #register_button_div {
+                    padding-left: 5px;
+                }
+            }
+            @media only screen and (max-width:599px ) {
+                #login_button_div {
+                    padding-bottom: 5px;
+                }
+                #register_button_div {
+                    padding-top: 5px;
+                }
+            }
+        </style>
     </head>
     <body>
         <?php include($pogo_path."/resources/php_components/error_top_container.php"); ?>
@@ -74,10 +94,10 @@ $cache_sufix = '?'.time();
                         <input type="password" id="password" name="password" class="w3-input input-center" maxlength="50"/>
                     </div>
                     <div class="w3-row w3-padding">
-                        <div class="w3-col w3-half" style="padding-right: 5px;">
+                        <div id="login_button_div" class="w3-col w3-half">
                             <input type="submit" class="w3-button button-all button-main" value="ENTRAR" style="width: 100%"/>
                         </div>
-                        <div class="w3-col w3-half" style="padding-left: 5px;">
+                        <div id="register_button_div" class="w3-col w3-half">
                             <input type="submit" class="w3-button button-all button-secondary" value="REGISTRAR-SE" formaction="./register.php" style="width: 100%"/>
                         </div>
                     </div>
