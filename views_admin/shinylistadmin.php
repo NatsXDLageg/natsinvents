@@ -145,14 +145,11 @@ $cache_sufix = '?'.time();
             if(data['status'] == 1) {
                 var html = '';
                 for(let row of data['shinies']) {
-                    if(row['shinyimageurl'] == '') {
-                        row['shinyimageurl'] = 'https://cdn3.iconfinder.com/data/icons/modifiers-add-on-1/48/v-17-512.png';
-                    }
                     html += '<div class="w3-col s6 m4 l2 w3-center close_button_parent">' +
                         '       <a href="/pogo/php_posts/post_pokemons.php?operation=remove_shiny&pokemon=' + row['id'] + '" class="close_button">' +
                         '           <button class="button-all button-tertiary">x</button>' +
                         '       </a>' +
-                        '       <img src="' + row['shinyimageurl'] + '" width="100%"/>' +
+                        '       <img src="/pogo/resources/images/pokemon/shiny/' + row['id'] + '.png" width="100%" onerror="this.src=\'/pogo/resources/images/pokemon/shiny/missing.png\';"/>' +
                         '       <p>' + row['nome'] + '</p>' +
                         '</div>';
                 }

@@ -46,6 +46,29 @@ $cache_sufix = '?'.time();
         #shiny_list {
             background-color: white;
         }
+
+        .print {
+            width: 100%;
+            padding: 3vh;
+            font-size: 5vh;
+            line-height: 5vh;
+            height: auto;
+        }
+        
+        .marked {
+            border: 5px limegreen solid;
+            border-radius: 10px;
+        }
+
+        .shiny_div {
+            position: relative;
+            left: 0;
+            top: 0;
+            width: 207px;
+        }
+        .shiny_inner {
+            position: relative;
+        }
     </style>
 </head>
 <body>
@@ -62,24 +85,50 @@ $cache_sufix = '?'.time();
     $(document).ready(function() {
 
         $.post( "/pogo/php_posts/post_pokemons.php", {
-            operation: 'get_shinies_by_dex_evo',
+            operation: 'get_shinies_by_dex_evo_group_families',
             get_user_list: 'true'
         })
         .done(function(data) {
             console.log(data);
             if(data['status'] == 1) {
                 var html = '';
-                for(let row of data['shinies']) {
-                    if(row['shinyimageurl'] == '') {
-                        row['shinyimageurl'] = 'https://cdn3.iconfinder.com/data/icons/modifiers-add-on-1/48/v-17-512.png';
-                    }
+                for(let family of data['data']) {
+                    let flength = family.length;
+                    let outerWidth = (flength + 40) + 'px';
+                    let innerWidth = '60px';
+                    // if(flength == 1) {
+                    //     colClass = 's1';
+                    //     width_float = 100.0;
+                    // }
+                    // else if(flength > 1 && flength < 4) {
+                    //     colClass = 's2';
+                    //     width_float = 100.0 / 3;
+                    // }
+                    // else if(flength >= 4) {
+                    //     colClass = 's4';
+                    //     width_float = 100.0 / 4;
+                    // }
+                    // else {
+                    //     continue;
+                    // }
+
+                    // let width = width_float + '%';
+
                     let marked = '';
-                    if(row['marked'] === '1') {
-                        marked = ' marked';
+                    // if(row['marked'] === '1') {
+                    //     marked = ' marked';
+                    // }
+                    html += '<div class="w3-center'+marked+' shiny_div">';
+
+                    let index = 0;
+                    for(let row of family) {
+                        let piece = 12.0;
+                        let left = (- index) * piece;
+                        left = left + '%';
+                        html += '<img src="/pogo/resources/images/pokemon/shiny/' + row['id'] + '.png" class="shiny_inner" style="left: ' + left + ';" width="80px" onerror="this.src=\'/pogo/resources/images/pokemon/shiny/missing.png\';"/>';
+                        index++;
                     }
-                    html += '<div class="w3-col s1 w3-center shiny-pokemon'+marked+'" data-id="'+row['id']+'">' +
-                        '       <img src="/pogo/resources/images/pokemon/shiny/' + row['id'] + '.png" width="100%" onerror="this.src=\'/pogo/resources/images/pokemon/shiny/missing.png\';"/>' +
-                        '</div>';
+                    html += '</div>';
                 }
 
                 $('#shiny_list').append(html);
@@ -95,37 +144,8 @@ $cache_sufix = '?'.time();
 
     $('.print').on('click', function() {
 
-        // html2canvas(document.querySelector("#shiny_list")).then(canvas => {
-        //     document.body.appendChild(canvas);
-        //     //
-        //     // $('canvas').prop('id', 'mycanvas');
-        //     //
-        //     // var canvas = document.getElementById("mycanvas");
-        //
-        //     // var link = document.getElementById('link');
-        //     // link.setAttribute('download', 'MintyPaper.png');
-        //     // link.setAttribute('href', canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"));
-        //     // link.click();
-        // });
-
         html2canvas([ document.getElementById('shiny_list') ], {
-            // "logging": true, //Enable log (use Web Console for get Errors and Warnings)
             "onrendered": function (canvas) {
-                // var img = new Image();
-                // img.onload = function() {
-                //     img.onload = null;
-                //     document.body.appendChild(img);
-                // };
-                // img.onerror = function() {
-                //     img.onerror = null;
-                //     if(window.console.log) {
-                //         window.console.log("Not loaded image from canvas.toDataURL");
-                //     } else {
-                //         alert("Not loaded image from canvas.toDataURL");
-                //     }
-                // };
-                // img.src = canvas.toDataURL("image/png");
-
                 console.log(canvas);
                 var link = document.getElementById('link');
                 link.setAttribute('download', 'shiny_list.png');

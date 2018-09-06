@@ -62,12 +62,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit();
                 }
 
-                $query = "Select p.id, p.nome, p.shinyimageurl, COALESCE(uhp.has_shiny_too, 0) as 'marked' from pokemon p left join usuario_has_pokemon uhp on uhp.id_pokemon = p.id where p.hasshiny = 1 order by pokedexevo";
+                $userMail = $_SESSION['email'];
+                $query = "
+                    Select * from (
+                    
+                    Select p.id, p.nome, COALESCE(uhp.has_shiny_too, 0) as 'marked', p.pokedexevo                     
+                    from usuario u
+                        left join usuario_has_pokemon uhp on uhp.id_usuario = u.id
+                        left join pokemon p on uhp.id_pokemon = p.id
+                    where
+                        u.email = ? and
+                        p.hasshiny = 1
+                        
+                    union all
+                    
+                    Select id, nome, 0 as 'marked', pokedexevo                     
+                    from pokemon
+                    where
+                        id not in (
+                            Select uhp.id_pokemon
+                            from usuario u
+                                left join usuario_has_pokemon uhp on uhp.id_usuario = u.id
+                            where u.email = ?
+                        )    
+                        and hasshiny = 1                
+                    ) as t1
+                    order by pokedexevo";
+                $statement = $mysqli->prepare($query);
+                $statement->bind_param('ss', $userMail, $userMail);
             }
             else {
-                $query = "Select id, nome, shinyimageurl, 0 as 'marked' from pokemon where hasshiny = 1 order by pokedexevo";
+                $query = "Select id, nome, 0 as 'marked' from pokemon where hasshiny = 1 order by pokedexevo";
+                $statement = $mysqli->prepare($query);
             }
-            $statement = $mysqli->prepare($query);
             $result = $statement->execute();
 
             if($result) {
@@ -78,6 +105,99 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 echo json_encode(array('status' => 1, 'shinies' => $pokemons));
+            }
+            else {
+                // SQL error
+                echo json_encode(array('status' => 0));
+            }
+            break;
+
+
+        //     ___ ___ _____   ___ _  _ ___ _  _ ___ ___ ___   _____   __  ___  _____  __  _____   _____     ___ ___  ___  _   _ ___   ___ _   __  __ ___ _    ___ ___ ___
+        //    / __| __|_   _| / __| || |_ _| \| |_ _| __/ __| | _ ) \ / / |   \| __\ \/ / | __\ \ / / _ \   / __| _ \/ _ \| | | | _ \ | __/_\ |  \/  |_ _| |  |_ _| __/ __|
+        //   | (_ | _|  | |   \__ \ __ || || .` || || _|\__ \ | _ \\ V /  | |) | _| >  <  | _| \ V / (_) | | (_ |   / (_) | |_| |  _/ | _/ _ \| |\/| || || |__ | || _|\__ \
+        //    \___|___| |_|   |___/_||_|___|_|\_|___|___|___/ |___/ |_|   |___/|___/_/\_\ |___| \_/ \___/   \___|_|_\\___/ \___/|_|   |_/_/ \_\_|  |_|___|____|___|___|___/
+        //
+        case 'get_shinies_by_dex_evo_group_families':
+            if(isset($_POST['get_user_list'])) {
+                if(!isset($_SESSION['email'])) {
+                    echo json_encode(array('status' => 0));
+                    exit();
+                }
+
+                $userMail = $_SESSION['email'];
+//                $query = "
+//                    Select * from (
+//
+//                    Select p.id, p.nome, COALESCE(uhp.has_shiny_too, 0) as 'marked', p.pokedexevo
+//                    from usuario u
+//                        left join usuario_has_pokemon uhp on uhp.id_usuario = u.id
+//                        left join pokemon p on uhp.id_pokemon = p.id
+//                    where
+//                        u.email = ? and
+//                        p.hasshiny = 1
+//
+//                    union all
+//
+//                    Select id, nome, 0 as 'marked', pokedexevo
+//                    from pokemon
+//                    where
+//                        id not in (
+//                            Select uhp.id_pokemon
+//                            from usuario u
+//                                left join usuario_has_pokemon uhp on uhp.id_usuario = u.id
+//                            where u.email = ?
+//                        )
+//                        and hasshiny = 1
+//                    ) as t1
+//                    order by pokedexevo";
+//                $statement = $mysqli->prepare($query);
+//                $statement->bind_param('ss', $userMail, $userMail);
+            }
+            else {
+//                $query = "Select id, nome, 0 as 'marked' from pokemon where hasshiny = 1 order by pokedexevo";
+//                $statement = $mysqli->prepare($query);
+            }
+            $query = "Select id, pokedexevo, nome from pokemon where evolve is null and hasshiny = 1 order by pokedexevo";
+            $statement = $mysqli->prepare($query);
+            $result = $statement->execute();
+
+            if($result) {
+                $result = $statement->get_result();
+                $data = array();
+                while($row = $result->fetch_array(MYSQLI_ASSOC)) {
+                    $family = array();
+                    $family[] = array_map("utf8_encode", $row);
+                    $dexNum = intval($row['pokedexevo']) + 1;
+                    $elementFound = true;
+                    while ($elementFound) {
+                        $query = "Select id, pokedexevo, nome from pokemon where evolve is not null AND evolve != 'N' and hasshiny = 1 and pokedexevo = ?";
+                        $statement = $mysqli->prepare($query);
+                        $statement->bind_param('i', $dexNum);
+                        $result2 = $statement->execute();
+
+                        if(!$result2) {
+                            echo json_encode(array('status' => 0));
+                            exit();
+                        }
+
+                        $result2 = $statement->get_result();
+                        if($result2->num_rows == 0) {
+                            $elementFound = false;
+                        }
+
+                        while($row2 = $result2->fetch_array(MYSQLI_ASSOC)) {
+                            $family[] = array_map("utf8_encode", $row2);
+                        }
+
+                        $dexNum = $dexNum + 1;
+                    }
+
+                    $data[] = $family;
+//                    $data[] = array_map("utf8_encode", $row);
+                }
+
+                echo json_encode(array('status' => 1, 'data' => $data));
             }
             else {
                 // SQL error

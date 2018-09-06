@@ -38,8 +38,7 @@ $cache_sufix = '?'.time();
                 padding-right: 8px;
             }
         }
-    </style>
-    <style>
+
         .marked {
             border: 5px limegreen solid;
             border-radius: 10px;
@@ -77,16 +76,13 @@ $cache_sufix = '?'.time();
             if(data['status'] == 1) {
                 var html = '';
                 for(let row of data['shinies']) {
-                    if(row['shinyimageurl'] == '') {
-                        row['shinyimageurl'] = 'https://cdn3.iconfinder.com/data/icons/modifiers-add-on-1/48/v-17-512.png';
-                    }
                     let marked = '';
                     if(row['marked'] === '1') {
                         marked = ' marked';
                     }
                     html += '<div class="w3-col s4 m3 l2 w3-center shiny-pokemon'+marked+'" data-id="'+row['id']+'">' +
-                        '       <img src="' + row['shinyimageurl'] + '" width="100%"/>' +
-                        '       <p>' + row['nome'] + '(' + row['id'] + ')</p>' +
+                        '       <img src="/pogo/resources/images/pokemon/shiny/' + row['id'] + '.png" width="100%" onerror="this.src=\'/pogo/resources/images/pokemon/shiny/missing.png\';"/>' +
+                        '       <p>' + row['nome'] + '</p>' +
                         '</div>';
                 }
 
