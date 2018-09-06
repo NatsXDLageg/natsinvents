@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header("Location:/pogo/views_admin/shinylistadmin.php?error=1");
                 exit();
             }
-            $apply_to_family = isset($_POST['evoshiny']) && $_POST['evoshiny'] == 'on';
+            $link = isset($_POST['link']) ? $_POST['link'] : null;
             if(isset($_POST['password'])) {
                 $userpwd = $_POST['password'];
             }
@@ -121,101 +121,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if($row['prioridade'] == '999') {
                             // All right for user
 
-                            // Will search for all members of family
-                            // Then update all fetched elements
+                            $statement = $mysqli->prepare("Update pokemon set hasshiny = 1, shinyimageurl = ? where id = ?");
+                            $statement->bind_param('si', $link, $pokemon_id);
+                            $result = $statement->execute();
 
-                            $evolution_family = array();
-                            $evolution_family[] = $pokemon_id;
-
-                            if($apply_to_family) {
-
-                                // Search for current pokemon
-                                $statement = $mysqli->prepare("Select id from pokemon where id = ? and evolve is not null");
-                                $statement->bind_param('i', $pokemon_id);
-                                $result = $statement->execute();
-
-                                if (!$result) {
-                                    // SQL error
-                                    header("Location:/pogo/views_admin/shinylistadmin.php?error=3");
-                                    exit();
-                                }
-
-                                $result = $statement->get_result();
-                                if ($result->num_rows == 1) {
-                                    // If the pokemon has evolution information, so it has a pre-evolution
-                                    $evolution_family[] = $pokemon_id - 1;
-
-                                    // Do the same one more time
-                                    $current_id = $pokemon_id - 1;
-
-                                    $statement = $mysqli->prepare("Select id from pokemon where id = ? and evolve is not null");
-                                    $statement->bind_param('i', $current_id);
-                                    $result = $statement->execute();
-
-                                    if (!$result) {
-                                        // SQL error
-                                        header("Location:/pogo/views_admin/shinylistadmin.php?error=3");
-                                        exit();
-                                    }
-
-                                    $result = $statement->get_result();
-                                    if ($result->num_rows == 1) {
-                                        // If the pokemon has evolution information, so it has a pre-evolution
-                                        $evolution_family[] = $current_id - 1;
-                                    }
-                                }
-
-                                // Search for evolution
-                                $current_id = $pokemon_id + 1;
-                                $statement = $mysqli->prepare("Select id from pokemon where id = ? and evolve is not null");
-                                $statement->bind_param('i', $current_id);
-                                $result = $statement->execute();
-
-                                if (!$result) {
-                                    // SQL error
-                                    header("Location:/pogo/views_admin/shinylistadmin.php?error=3");
-                                    exit();
-                                }
-
-                                $result = $statement->get_result();
-                                if ($result->num_rows == 1) {
-                                    // The evolution must be considered
-                                    $evolution_family[] = $current_id;
-
-                                    // Do the same one more time
-                                    $current_id = $pokemon_id + 2;
-                                    $statement = $mysqli->prepare("Select id from pokemon where id = ? and evolve is not null");
-                                    $statement->bind_param('i', $current_id);
-                                    $result = $statement->execute();
-
-                                    if (!$result) {
-                                        // SQL error
-                                        header("Location:/pogo/views_admin/shinylistadmin.php?error=3");
-                                        exit();
-                                    }
-
-                                    $result = $statement->get_result();
-                                    if ($result->num_rows == 1) {
-                                        // The evolution must be considered
-                                        $evolution_family[] = $current_id;
-                                    }
-                                }
-                            }
-
-                            $mysqli->autocommit(false);
-
-                            // Update pokemon
-                            foreach ($evolution_family as $el) {
-                                $statement = $mysqli->prepare("Update pokemon set hasshiny = 1 where id = ?");
-                                $statement->bind_param('i', $el);
-                                $result = $statement->execute();
-
-                                if(!$result) {
-                                    // SQL error
-                                    header("Location:/pogo/views_admin/shinylistadmin.php?error=3");
-                                    $mysqli->rollback();
-                                    exit();
-                                }
+                            if(!$result) {
+                                // SQL error
+                                header("Location:/pogo/views_admin/shinylistadmin.php?error=3");
+                                $mysqli->rollback();
+                                exit();
                             }
 
                             // Success
@@ -261,16 +175,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $listhas = $_POST['listhas'];
             }
             else {
-                echo json_encode(array('status' => 0, 'message' => 'Missing param: listhas'));
-                exit();
+                $listhas = array();
             }
 
             if(isset($_POST['listhasnt'])) {
                 $listhasnt = $_POST['listhasnt'];
             }
             else {
-                echo json_encode(array('status' => 0, 'message' => 'Missing param: listhasnt'));
-                exit();
+                $listhasnt = array();
             }
 
             $mysqli->autocommit(false);

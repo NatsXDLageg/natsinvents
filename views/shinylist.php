@@ -10,41 +10,6 @@ if(!isset($check_login)) {
     $check_login = true;
 }
 
-if (isset($_GET['error'])) {
-    $error = $_GET['error'];
-    switch ($error) {
-        case 1:
-            $errormessage = "Parâmetros (pokemon) incorreto";
-            break;
-        case 2:
-            $errormessage = "Parâmetros (senha) incorreto";
-            break;
-        case 3:
-            $errormessage = "Erro de SQL";
-            break;
-        case 4:
-            $errormessage = "Pokemon não encontrado";
-            break;
-        case 5:
-            $errormessage = "Senha incorreta";
-            break;
-        default:
-            $errormessage = "Erro desconhecido, por favor tente novamente (".$error.")";
-            break;
-    }
-}
-if (isset($_GET['success'])) {
-    $successmessage = "Sucesso!<br/>";
-    $success = $_GET['success'];
-    switch ($success) {
-        case 1:
-            $successmessage .= "Dados atualizados";
-            break;
-        default:
-            break;
-    }
-}
-
 $cache_sufix = '?'.time();
 
 ?>
@@ -86,13 +51,14 @@ $cache_sufix = '?'.time();
 
     <div class="w3-container w3-padding-16">
         <button class="w3-button button-all button-main update-list">Salvar</button>
-        <button class="w3-button button-all button-secondary">Imprimir</button>
+        <a href="shinyprint.php"><button class="w3-button button-all button-secondary">Imprimir</button></a>
     </div>
 
     <div id="shiny_list" class="w3-container"></div>
 
     <div class="w3-container w3-padding-16">
         <button class="w3-button button-all button-main update-list">Salvar</button>
+        <a href="shinyprint.php"><button class="w3-button button-all button-secondary">Imprimir</button></a>
     </div>
 
     <?php include($pogo_path."/resources/php_components/main_bottom_footer.php"); ?>
@@ -101,7 +67,6 @@ $cache_sufix = '?'.time();
 <script>
 
     $(document).ready(function() {
-        <?php include($pogo_path."/resources/php_components/on_doc_ready_vanish.php"); ?>
 
         $.post( "/pogo/php_posts/post_pokemons.php", {
             operation: 'get_shinies_by_dex_evo',
@@ -121,7 +86,7 @@ $cache_sufix = '?'.time();
                     }
                     html += '<div class="w3-col s4 m3 l2 w3-center shiny-pokemon'+marked+'" data-id="'+row['id']+'">' +
                         '       <img src="' + row['shinyimageurl'] + '" width="100%"/>' +
-                        '       <p>' + row['nome'] + '</p>' +
+                        '       <p>' + row['nome'] + '(' + row['id'] + ')</p>' +
                         '</div>';
                 }
 
@@ -137,7 +102,7 @@ $cache_sufix = '?'.time();
                 });
             }
             else {
-                toastr["error"]('Ocorreu um erro: ' + data['message'] + ' (' + data['status'] + ')');
+                toastr['error']('Ocorreu um erro: ' + data['message'] + ' (' + data['status'] + ')');
             }
         })
         .fail(function() {
@@ -152,7 +117,6 @@ $cache_sufix = '?'.time();
         for (let i = 0; i < fetch.length; i++) {
             has_list.push(fetch.eq(i).attr('data-id'));
         }
-        console.log(has_list);
 
         var has_not_list = new Array();
         fetch = $('#shiny_list .shiny-pokemon:not(.marked)');
@@ -160,7 +124,6 @@ $cache_sufix = '?'.time();
         for (let i = 0; i < fetch.length; i++) {
             has_not_list.push(fetch.eq(i).attr('data-id'));
         }
-        console.log(has_not_list);
 
         $.post( "/pogo/php_posts/post_pokemons.php", {
             'operation': 'update_shinies_user',
@@ -170,14 +133,14 @@ $cache_sufix = '?'.time();
         .done(function(data) {
             console.log(data);
             if(data['status'] == 1) {
-                toastr["success"]('Lista atualizada!');
+                toastr['success']('Lista atualizada!');
             }
             else {
-                toastr["error"]('Ocorreu um erro: ' + data['message'] + ' (' + data['status'] + ')');
+                toastr['error']('Ocorreu um erro: ' + data['message'] + ' (' + data['status'] + ')');
             }
         })
         .fail(function() {
-            toastr["error"]('Ocorreu um erro');
+            toastr['error']('Ocorreu um erro');
         });
     });
 </script>

@@ -58,7 +58,9 @@ $cache_sufix = '?'.time();
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <link rel="stylesheet" type="text/css" href="/pogo/resources/css/w3.css">
     <link rel="stylesheet" type="text/css" href="/pogo/resources/css/theme.css<?php echo $cache_sufix ?>"><!-- ?random=@Environment.TickCount -->
+    <link rel="stylesheet" type="text/css" href="/pogo/resources/css/toastr.min.css">
     <script src="/pogo/resources/js/jquery-3.3.1.min.js"></script>
+    <script src="/pogo/resources/js/toastr.min.js"></script>
     <title>Shiny List - Admin</title>
     <style>
         .close_button {
@@ -73,8 +75,6 @@ $cache_sufix = '?'.time();
 </head>
 </head>
 <body>
-    <?php include($pogo_path."/resources/php_components/success_top_container.php"); ?>
-    <?php include($pogo_path."/resources/php_components/error_top_container.php"); ?>
     <?php include($pogo_path."/resources/php_components/main_top_header.php"); ?>
 
     <div class="w3-container w3-padding-16">
@@ -89,8 +89,8 @@ $cache_sufix = '?'.time();
             </div>
 
             <div class="w3-container w3-padding">
-                <input type="checkbox" id="check" name="evoshiny" class="w3-check" checked/>
-                <label for="check"> Evoluções também possuem forma shiny? </label>
+                <label for="link">Link com imagem do pokemon shiny: </label>
+                <input type="text" id="link" name="link" class="w3-input" placeholder="google.com/img.png" maxlength="200"/>
             </div>
             <br/>
 
@@ -117,7 +117,6 @@ $cache_sufix = '?'.time();
 <script>
 
     $(document).ready(function() {
-        <?php include($pogo_path."/resources/php_components/on_doc_ready_vanish.php"); ?>
 
         $.post( "/pogo/php_posts/post_pokemons.php", {
             operation: 'get_pokemons_by_name'
@@ -162,13 +161,13 @@ $cache_sufix = '?'.time();
             }
         })
         .fail(function() {
-            alert( "error" );
+            alert( 'error' );
         });
     });
 
     $('#form').submit(function() {
         if($('#pkmn_list').val() == 'none') {
-            alert("Por favor escolha um pokemon");
+            toastr['warning']('Escolha um pokemon');
             return false;
         }
     });
