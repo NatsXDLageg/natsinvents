@@ -30,7 +30,7 @@ $cache_sufix = '?'.time();
     <style>
         body {
             width: 1280px !important;
-            height: 1080px !important;
+            background-color: #01040f;
         }
 
         @media only screen and (min-width:600px ) {
@@ -44,7 +44,9 @@ $cache_sufix = '?'.time();
         }
 
         #shiny_list {
-            background-color: white;
+            background-color: #01040f;
+            background-image: url('/pogo/resources/images/looped.png');
+            padding: 0;
         }
 
         .print {
@@ -61,13 +63,9 @@ $cache_sufix = '?'.time();
         }
 
         .shiny_div {
-            position: relative;
-            left: 0;
-            top: 0;
-            width: 207px;
-        }
-        .shiny_inner {
-            position: relative;
+            display: inline-block;
+            margin-left: 10px;
+            margin-right: 10px;
         }
     </style>
 </head>
@@ -77,7 +75,9 @@ $cache_sufix = '?'.time();
         <a id="link" class="w3-hide"></a>
     </div>
 
-    <div id="shiny_list" class="w3-container"></div>
+    <div id="shiny_list" class="w3-container w3-center">
+        <img src="/pogo/resources/images/PrintListHeader.png" width="100%"/>
+    </div>
 </body>
 
 <script>
@@ -85,47 +85,29 @@ $cache_sufix = '?'.time();
     $(document).ready(function() {
 
         $.post( "/pogo/php_posts/post_pokemons.php", {
-            operation: 'get_shinies_by_dex_evo_group_families',
-            get_user_list: 'true'
+            operation: 'get_shinies_by_dex_evo_group_families'
         })
         .done(function(data) {
             console.log(data);
             if(data['status'] == 1) {
                 var html = '';
                 for(let family of data['data']) {
-                    let flength = family.length;
-                    let outerWidth = (flength + 40) + 'px';
-                    let innerWidth = '60px';
-                    // if(flength == 1) {
-                    //     colClass = 's1';
-                    //     width_float = 100.0;
-                    // }
-                    // else if(flength > 1 && flength < 4) {
-                    //     colClass = 's2';
-                    //     width_float = 100.0 / 3;
-                    // }
-                    // else if(flength >= 4) {
-                    //     colClass = 's4';
-                    //     width_float = 100.0 / 4;
-                    // }
-                    // else {
-                    //     continue;
-                    // }
 
-                    // let width = width_float + '%';
-
-                    let marked = '';
-                    // if(row['marked'] === '1') {
-                    //     marked = ' marked';
-                    // }
-                    html += '<div class="w3-center'+marked+' shiny_div">';
+                    html += '<div class="w3-center shiny_div">';
 
                     let index = 0;
                     for(let row of family) {
-                        let piece = 12.0;
-                        let left = (- index) * piece;
-                        left = left + '%';
-                        html += '<img src="/pogo/resources/images/pokemon/shiny/' + row['id'] + '.png" class="shiny_inner" style="left: ' + left + ';" width="80px" onerror="this.src=\'/pogo/resources/images/pokemon/shiny/missing.png\';"/>';
+                        let marginLeft = '';
+                        if(index > 0) {
+                            marginLeft = 'margin-left: -40px;';
+                        }
+                        html += '<img src="/pogo/resources/images/pokemon/shiny/' + row['id'] + '.png" width="100px" class="shiny_inner" style="' + marginLeft + '" onerror="this.src=\'/pogo/resources/images/pokemon/shiny/missing.png\';"/>';
+
+                        if(row['marked'] === '1') {
+                            let rand = Math.floor((Math.random() * 4) + 1);
+                            html += '<img src="/pogo/resources/images/svg/circle' + rand + '.svg" width="100px" style="margin-left: -100px;" onerror="this.src=\'/pogo/resources/images/pokemon/shiny/missing.png\';"/>';
+                        }
+
                         index++;
                     }
                     html += '</div>';
