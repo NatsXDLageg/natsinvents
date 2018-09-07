@@ -10,6 +10,13 @@ if(!isset($check_login)) {
     $check_login = true;
 }
 
+if (isset($_SESSION['start_path'])) {
+    $location = "Location:" . $_SESSION['start_path'];
+    unset($_SESSION['start_path']);
+    header($location);
+    exit();
+}
+
 $cache_sufix = '?'.time();
 
 $admin = ($_SESSION['priority'] === 999);

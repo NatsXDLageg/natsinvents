@@ -7,9 +7,19 @@ if(!isset($php_connection)) {
     $php_connection = true;
 }
 
-if (!$_SERVER['REQUEST_METHOD'] === 'POST') {
+// Remove after
+if(!isset($mysqli)) {
+    $mysqli = new mysqli();
+}
 
-    die("Método de requisição incorreto");
+header('Content-Type: application/json');
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+
+    die(json_encode(array('status' => 0, 'message' => 'Método incorreto de requisição')));
+}
+
+if(!isset($_POST['password']) || !isset($_POST['email'])) {
+    die(json_encode(array('status' => 0, 'message' => 'Parâmetro incorreto', 'debug' => $_POST)));
 }
 
 $email = $_POST['email'];
@@ -33,24 +43,17 @@ if($result) {
                 $_SESSION['email'] = $email;
                 $_SESSION['priority'] = intval($row["prioridade"]);
 
-                if (isset($_SESSION['start_path'])) {
-                    $location = "Location:" . $_SESSION['start_path'];
-                    unset($_SESSION['start_path']);
-                    header($location);
-                }
-                else {
-                    header("Location:/pogo");
-                }
+                die(json_encode(array('status' => 1, 'message' => 'Sucesso')));
             }
             else {
-                header("Location:/pogo/views/login.php?error=2");
+                die(json_encode(array('status' => 0, 'message' => 'Não foi possível fazer login')));
             }
         }
     }
     else {
-        header("Location:/pogo/views/login.php?error=1");
+        die(json_encode(array('status' => 0, 'message' => 'Usuário ou senha incorreto')));
     }
 }
 else {
-    header("Location:/pogo/views/login.php?error=900");
+    die(json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error)));
 }

@@ -6,23 +6,8 @@ if(!isset($server_var)) {
 }
 
 $email = "";
-$errormessage = "";
 if (isset($_POST['email'])) {
     $email = $_POST['email'];
-}
-if (isset($_GET['error'])) {
-    $error = $_GET['error'];
-    switch ($error) {
-        case 1:
-            $errormessage = "Email já cadastrado. Tente outro";
-            break;
-        case 2:
-            $errormessage = "Não tente burlar o sistema";
-            break;
-        default:
-            $errormessage = "Erro desconhecido, por favor tente novamente (".$error.")";
-            break;
-    }
 }
 
 $cache_sufix = '?'.time();
@@ -38,46 +23,44 @@ $cache_sufix = '?'.time();
         <link rel="stylesheet" type="text/css" href="/pogo/resources/css/w3.css">
         <link rel="stylesheet" type="text/css" href="/pogo/resources/css/theme.css<?php echo $cache_sufix; ?>"><!-- ?random=@Environment.TickCount -->
         <link rel="stylesheet" type="text/css" href="/pogo/resources/css/iconselect.css" >
-        <script src="/pogo/resources/js/jquery-3.3.1.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="/pogo/resources/css/toastr.min.css">
+        <script type="text/javascript" src="/pogo/resources/js/jquery-3.3.1.min.js"></script>
         <script type="text/javascript" src="/pogo/resources/js/iconselect.js"></script>
         <script type="text/javascript" src="/pogo/resources/js/iscroll.js"></script>
+        <script type="text/javascript" src="/pogo/resources/js/toastr.min.js"></script>
 
         <title>Nats Invents - Registrar</title>
     </head>
     <body>
-        <?php include($pogo_path."/resources/php_components/error_top_container.php"); ?>
-        <?php include($pogo_path."/resources/php_components/warning_top_container.php"); ?>
         <div class="w3-display-container w3-col w3-half" style="padding: 0; height: 100vh;">
             <div class="w3-display-middle w3-mobile">
-                <form id="form" action="/pogo/php_posts/post_register.php" method="post">
-                    <div class="w3-container w3-padding">
-                        <h2 class="theme-text">Registre-se</h2>
-                    </div>
-                    <div class="w3-container w3-padding">
-                        <label for="name">Nome</label>
-                        <input type="text" id="name" name="name" placeholder="Nome" class="w3-input input-center" maxlength="50" required/>
-                    </div>
-                    <div class="w3-container w3-padding">
-                        <label for="email">E-mail</label>
-                        <input type="email" id="email" name="email" placeholder="ex@ex.com" value="<?php echo $email ?>" class="w3-input input-center" maxlength="40" required/>
-                    </div>
-                    <div class="w3-container w3-padding">
-                        <label for="password">Senha</label>
-                        <input type="password" id="password" name="password" class="w3-input input-center" maxlength="50" required/>
-                    </div>
-                    <div class="w3-container w3-padding">
-                        <label for="team">Time</label>
-                        <input type="hidden" name="team"/>
-                        <div id="team_select"></div>
-                    </div>
-                    <div class="w3-container w3-padding">
-                        <label for="level">Nível</label>
-                        <input type="number" id="level" name="level" value="1" class="w3-input input-center" min="1" max="40" required/>
-                    </div>
-                    <div class="w3-container w3-padding">
-                        <input type="submit" class="w3-button theme-bg button-main" style="width: 100%" value="CONFIRMAR"/>
-                    </div>
-                </form>
+                <div class="w3-container w3-padding">
+                    <h2 class="theme-text">Registre-se</h2>
+                </div>
+                <div class="w3-container w3-padding">
+                    <label for="name">Nome</label>
+                    <input type="text" id="name" name="name" placeholder="Nome" class="w3-input input-center" maxlength="50" required/>
+                </div>
+                <div class="w3-container w3-padding">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" placeholder="ex@ex.com" value="<?php echo $email ?>" class="w3-input input-center" maxlength="40" required/>
+                </div>
+                <div class="w3-container w3-padding">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" name="password" class="w3-input input-center" maxlength="50" required/>
+                </div>
+                <div class="w3-container w3-padding">
+                    <label for="team">Time</label>
+                    <input type="hidden" name="team"/>
+                    <div id="team_select"></div>
+                </div>
+                <div class="w3-container w3-padding">
+                    <label for="level">Nível</label>
+                    <input type="number" id="level" name="level" value="1" class="w3-input input-center" min="1" max="40" required/>
+                </div>
+                <div class="w3-container w3-padding">
+                    <input type="button" id="submit" class="w3-button theme-bg button-main" style="width: 100%" value="CONFIRMAR"/>
+                </div>
             </div>
         </div>
         <div class="w3-display-container w3-col w3-half w3-hide-small theme-bg" style="height: 100vh;">
@@ -92,24 +75,48 @@ $cache_sufix = '?'.time();
         var iconSelect;
         IconSelect.COMPONENT_ICON_FILE_PATH = "/pogo/resources/images/icon-select/arrow.png";
 
-        $('#form').submit(function() {
+        $('#submit').on('click', function() {
 
             var re = new RegExp("^[a-zA-Z0-9_]+$");
-            if(!re.test($('input[name=username').val())) {
-                alert("Nome de usuário somente pode conter caracteres alfanuméricos ou underscore ( _ )");
-                return false;
+            if(!re.test($('input[name=name').val())) {
+                toastr['warning']("Nome de usuário somente pode conter caracteres alfanuméricos ou underscore (_)");
+                return;
+            }
+            if($('input[name=email').val() == "") {
+                toastr['warning']("Por favor informe o email");
+                return;
             }
             if($('input[name=password').val() == "") {
-                alert("Por favor informe uma senha");
-                return false;
+                toastr['warning']("Por favor informe uma senha");
+                return;
             }
             $('input[name=team').val(iconSelect.getSelectedValue());
             $('input#level').val(clamp($('input#level').val(), 1, 40));
-            return true; // return false to cancel form action
+
+            $.post( "/pogo/php_posts/post_register.php", {
+                username: $('input[name=name').val().trim(),
+                password: $('input[name=password').val().trim(),
+                email: $('input[name=email').val().trim(),
+                team: $('input[name=team').val(),
+                level: $('input#level').val()
+            })
+            .done(function(data) {
+                if (data['status'] == 1) {
+                    toastr['warning'](data['message']);
+
+                    setTimeout(function() {
+                        window.location.replace('login.php');
+                    }, 5000);
+                }
+                else {
+                    console.log(data);
+                    toastr['error'](data['message']);
+                }
+            });
         });
 
         $(document).ready(function() {
-            <?php include($pogo_path."/resources/php_components/on_doc_ready_vanish.php"); ?>
+<!--            --><?php //include($pogo_path."/resources/php_components/on_doc_ready_vanish.php"); ?>
 
             //selectedText.value = iconSelect.getSelectedValue();
 
