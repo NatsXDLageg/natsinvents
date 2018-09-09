@@ -68,12 +68,17 @@ $cache_sufix = '?'.time();
                         <label for="password">Senha</label>
                         <input type="password" id="password" name="password" class="w3-input input-center" maxlength="50"/>
                     </div>
+                    <div class="w3-container w3-padding">
+                        <label for="remember">Mantenha-me conectado: </label>
+                        <input type="checkbox" id="remember" name="remember" class="w3-check"/>
+                    </div>
+                    <br/>
                     <div class="w3-row w3-padding">
                         <div id="login_button_div" class="w3-col w3-half">
                             <input type="button" id="submit" class="w3-button button-all button-main" value="ENTRAR" style="width: 100%"/>
                         </div>
                         <div id="register_button_div" class="w3-col w3-half">
-                            <input type="submit" class="w3-button button-all button-secondary" value="REGISTRAR-SE" style="width: 100%"/>
+                            <input type="button" id="register" class="w3-button button-all button-secondary" value="REGISTRAR-SE" style="width: 100%"/>
                         </div>
                     </div>
                 </form>
@@ -84,18 +89,20 @@ $cache_sufix = '?'.time();
     <script>
 
         $('#submit').on('click', function() {
+            console.log('a');
 
-            if($('input[name=email').val() == "") {
+            if($('input#email').val() == "") {
                 toastr['warning']("Por favor informe o email");
                 return;
             }
-            if($('input[name=password').val() == "") {
+            if($('input#password').val() == "") {
                 toastr['warning']("Por favor informe uma senha");
                 return;
             }
             $.post("/pogo/php_posts/post_login.php", {
-                password: $('input[name=password').val().trim(),
-                email: $('input[name=email').val().trim()
+                password: $('input#password').val().trim(),
+                email: $('input#email').val().trim(),
+                rememberme: $('input#remember').prop('checked')
             })
             .done(function (data) {
                 if (data['status'] == 1) {
@@ -108,8 +115,27 @@ $cache_sufix = '?'.time();
             });
         });
 
-        $(document).ready(function() {
+        $('#register').on('click', function() {
+            sessionStorage.email = encodeURI($('input[name=email').val().trim());
+            window.location.replace('/pogo/views/register.php');
+        });
 
+        $(document).ready(function() {
+            var input = document.getElementById("email");
+
+            input.addEventListener("keyup", function(event) {
+                if (event.keyCode === 13) {
+                    $('#submit').trigger('click');
+                }
+            });
+
+            input = document.getElementById("password");
+
+            input.addEventListener("keyup", function(event) {
+                if (event.keyCode === 13) {
+                    $('#submit').trigger('click');
+                }
+            });
         });
     </script>
 </html>

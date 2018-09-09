@@ -116,9 +116,12 @@ $cache_sufix = '?'.time();
         });
 
         $(document).ready(function() {
-<!--            --><?php //include($pogo_path."/resources/php_components/on_doc_ready_vanish.php"); ?>
 
-            //selectedText.value = iconSelect.getSelectedValue();
+            let sessionEmail = sessionStorage.getItem("email");
+            if(sessionEmail !== null && sessionEmail !== undefined) {
+                $('input[name=email').val(sessionEmail);
+                sessionStorage.removeItem('email');
+            }
 
             iconSelect = new IconSelect("team_select");
 

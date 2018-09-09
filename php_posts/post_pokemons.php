@@ -63,33 +63,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 $userMail = $_SESSION['email'];
+
+                $statement = $mysqli->prepare("Select id from usuario where email = ?");
+                $statement->bind_param('s', $userMail);
+                $result = $statement->execute();
+
+                if(!$result) {
+                    echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));
+                    exit();
+                }
+
+                $result = $statement->get_result();
+                $row = $result->fetch_array(MYSQLI_ASSOC);
+                $userId = $row['id'];
+
                 $query = "
-                    Select * from (
-                    
                     Select p.id, p.nome, COALESCE(uhp.has_shiny_too, 0) as 'marked', p.pokedexevo                     
-                    from usuario u
-                        left join usuario_has_pokemon uhp on uhp.id_usuario = u.id
-                        left join pokemon p on uhp.id_pokemon = p.id
+                    from pokemon p
+                        left join usuario_has_pokemon uhp on uhp.id_pokemon = p.id and uhp.id_usuario = ?
                     where
-                        u.email = ? and
                         p.hasshiny = 1
-                        
-                    union all
-                    
-                    Select id, nome, 0 as 'marked', pokedexevo                     
-                    from pokemon
-                    where
-                        id not in (
-                            Select uhp.id_pokemon
-                            from usuario u
-                                left join usuario_has_pokemon uhp on uhp.id_usuario = u.id
-                            where u.email = ?
-                        )    
-                        and hasshiny = 1                
-                    ) as t1
                     order by pokedexevo";
                 $statement = $mysqli->prepare($query);
-                $statement->bind_param('ss', $userMail, $userMail);
+                $statement->bind_param('i', $userid);
             }
             else {
                 $query = "Select id, nome, 0 as 'marked' from pokemon where hasshiny = 1 order by pokedexevo";
@@ -126,21 +122,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $userMail = $_SESSION['email'];
 
-            $query = "Select 
-                          p.id, 
-                          p.pokedexevo, 
-                          p.nome,
-                          COALESCE(uhp.has_shiny_too, 0) as marked 
-                      from 
-                          pokemon p
-                          left join usuario_has_pokemon uhp on uhp.id_pokemon = p.id
-                          left join usuario u on uhp.id_usuario = u.id and u.email = ? 
-                      where 
-                          p.evolve is null 
-                          and p.hasshiny = 1 
-                      order by p.pokedexevo";
-            $statement = $mysqli->prepare($query);
+            $statement = $mysqli->prepare("Select id from usuario where email = ?");
             $statement->bind_param('s', $userMail);
+            $result = $statement->execute();
+
+            if(!$result) {
+                echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));
+                exit();
+            }
+
+            $result = $statement->get_result();
+            $row = $result->fetch_array(MYSQLI_ASSOC);
+            $userId = $row['id'];
+
+            $query = "
+                    Select p.id, p.nome, COALESCE(uhp.has_shiny_too, 0) as 'marked', p.pokedexevo                     
+                    from pokemon p
+                        left join usuario_has_pokemon uhp on uhp.id_pokemon = p.id and uhp.id_usuario = ?
+                    where
+                        p.hasshiny = 1
+                        and p.evolve is null
+                    order by pokedexevo";
+            $statement = $mysqli->prepare($query);
+            $statement->bind_param('i', $userId);
             $result = $statement->execute();
 
             if($result) {
@@ -160,15 +164,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 COALESCE(uhp.has_shiny_too, 0) as marked
                             from
                                 pokemon p
-                                left join usuario_has_pokemon uhp on uhp.id_pokemon = p.id
-                                left join usuario u on uhp.id_usuario = u.id and u.email = ?
+                                left join usuario_has_pokemon uhp on uhp.id_pokemon = p.id and uhp.id_usuario = ?
                             where
                                 p.evolve is not null
                                 and p.hasshiny = 1
                                 and p.pokedexevo = ?
                         ";
                         $statement = $mysqli->prepare($query);
-                        $statement->bind_param('si', $userMail, $dexNum);
+                        $statement->bind_param('ii', $userId, $dexNum);
                         $result2 = $statement->execute();
 
                         if(!$result2) {
@@ -213,6 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header("Location:/pogo/views_admin/shinylistadmin.php?error=1");
                 exit();
             }
+            $link = isset($_POST['link']) ? $_POST['link'] : null;
             if(isset($_POST['password'])) {
                 $userpwd = $_POST['password'];
             }

@@ -98,11 +98,11 @@ $cache_sufix = '?'.time();
                 });
             }
             else {
-                toastr['error']('Ocorreu um erro: ' + data['message'] + ' (' + data['status'] + ')');
+                toastr['error'](data['message']);
             }
         })
         .fail(function() {
-            alert( "error" );
+            toastr['error']('Erro desconhecido');
         });
     });
 

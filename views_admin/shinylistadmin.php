@@ -87,7 +87,11 @@ $cache_sufix = '?'.time();
                     <option value="none">Nenhum</option>
                 </select>
             </div>
-            <br/>
+<!--            <div class="w3-container w3-padding">-->
+<!--                <label for="link">Link com imagem do pokemon shiny: </label>-->
+<!--                <input type="text" id="link" name="link" class="w3-input" placeholder="google.com/img.png" maxlength="300"/>-->
+<!--            </div>-->
+<!--            <br/>-->
 
             <div class="w3-container w3-padding">
                 <label for="password">Senha de confirmação do usuário: </label>
