@@ -36,7 +36,6 @@ $admin = ($_SESSION['priority'] === 999);
     <title>Nats Invents - Início</title>
 </head>
 <body>
-    <?php include($pogo_path."/resources/php_components/error_top_container.php"); ?>
     <?php include($pogo_path."/resources/php_components/main_top_header.php"); ?>
 
     <div class="w3-container w3-padding-16">
@@ -57,7 +56,7 @@ $admin = ($_SESSION['priority'] === 999);
 <script>
 
     $(document).ready(function() {
-        <?php include($pogo_path."/resources/php_components/on_doc_ready_vanish.php"); ?>
+
     });
 </script>
 </html>

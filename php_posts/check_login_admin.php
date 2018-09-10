@@ -1,6 +1,9 @@
 <?php
 
-include($_SERVER['DOCUMENT_ROOT']."/pogo/php_posts/check_login.php");
+if(!isset($check_login)) {
+    include($_SERVER['DOCUMENT_ROOT']."/pogo/php_posts/check_login.php");
+    $check_login = true;
+}
 $logged = false;
 
 if(!isset($_SESSION['priority']) || $_SESSION['priority'] !== 999)

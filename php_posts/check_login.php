@@ -26,7 +26,7 @@ function fetchTokenByUserName($mysqli, $user, $token) {
 }
 
 function logUserIn($mysqli, $user) {
-    $statement = $mysqli->prepare("Select email, prioridade from usuario where id_usuario = ?");
+    $statement = $mysqli->prepare("Select email, prioridade from usuario where id = ?");
     $statement->bind_param('i', $user);
     $result = $statement->execute();
 
@@ -61,15 +61,17 @@ if(!isset($_SESSION['email']))
 {
     $cookie = isset($_COOKIE['rememberme']) ? $_COOKIE['rememberme'] : null;
     if ($cookie) {
+
         list ($user, $token, $mac) = explode(':', $cookie);
         if (!hash_equals(hash_hmac('sha256', $user . ':' . $token, $secret_key), $mac)) {
-            return false;
+            $logged = false;
         }
-        if(fetchTokenByUserName($mysqli, $user, $token)) {
+        else if(fetchTokenByUserName($mysqli, $user, $token)) {
             logUserIn($mysqli, $user);
             $logged = true;
         }
         else {
+            setcookie('rememberme', '');
             $logged = false;
         }
     }

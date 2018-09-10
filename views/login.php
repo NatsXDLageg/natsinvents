@@ -89,7 +89,6 @@ $cache_sufix = '?'.time();
     <script>
 
         $('#submit').on('click', function() {
-            console.log('a');
 
             if($('input#email').val() == "") {
                 toastr['warning']("Por favor informe o email");

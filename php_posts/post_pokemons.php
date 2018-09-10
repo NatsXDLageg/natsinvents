@@ -6,6 +6,10 @@ if(!isset($php_connection)) {
     include($_SERVER['DOCUMENT_ROOT']."/../common_files/php_connection.php");
     $php_connection = true;
 }
+if(!isset($server_var)) {
+    include($_SERVER['DOCUMENT_ROOT']."/../common_files/server_var.php");
+    $server_var = true;
+}
 
 // Remove after
 if(!isset($mysqli)) {
@@ -58,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'get_shinies_by_dex_evo':
             if(isset($_POST['get_user_list'])) {
                 if(!isset($_SESSION['email'])) {
-                    echo json_encode(array('status' => 0));
+                    echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: email'));
                     exit();
                 }
 
@@ -78,14 +82,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $userId = $row['id'];
 
                 $query = "
-                    Select p.id, p.nome, COALESCE(uhp.has_shiny_too, 0) as 'marked', p.pokedexevo                     
+                    Select p.id, p.nome, COALESCE(uhp.has_shiny_too, 0) as 'marked', p.pokedexevo                   
                     from pokemon p
                         left join usuario_has_pokemon uhp on uhp.id_pokemon = p.id and uhp.id_usuario = ?
                     where
                         p.hasshiny = 1
                     order by pokedexevo";
                 $statement = $mysqli->prepare($query);
-                $statement->bind_param('i', $userid);
+                $statement->bind_param('i', $userId);
             }
             else {
                 $query = "Select id, nome, 0 as 'marked' from pokemon where hasshiny = 1 order by pokedexevo";
@@ -117,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'get_shinies_by_dex_evo_group_families':
 
             if(!isset($_SESSION['email'])) {
-                echo json_encode(array('status' => 0));
+                echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: email'));
                 exit();
             }
             $userMail = $_SESSION['email'];
@@ -175,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $result2 = $statement->execute();
 
                         if(!$result2) {
-                            echo json_encode(array('status' => 0));
+                            echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));
                             exit();
                         }
 
@@ -198,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             else {
                 // SQL error
-                echo json_encode(array('status' => 0));
+                echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));
             }
             break;
 
@@ -213,7 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pokemon_id = intval($pokemon_id);
             }
             else {
-                header("Location:/pogo/views_admin/shinylistadmin.php?error=1");
+                echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: pokemon'));
                 exit();
             }
             $link = isset($_POST['link']) ? $_POST['link'] : null;
@@ -221,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $userpwd = $_POST['password'];
             }
             else {
-                header("Location:/pogo/views_admin/shinylistadmin.php?error=2");
+                echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: password'));
                 exit();
             }
 
@@ -244,33 +248,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             if(!$result) {
                                 // SQL error
-                                header("Location:/pogo/views_admin/shinylistadmin.php?error=3");
+                                echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));
                                 $mysqli->rollback();
                                 exit();
                             }
 
+                            $copy = 'não';
+                            if($link) {
+                                if(copy($link, $pogo_path.'/resources/images/pokemon/shiny/'.$pokemon_id.'.png')) {
+                                    $copy = 'sim';
+                                }
+                                else {
+                                    $copy = 'erro';
+                                }
+                            }
+
                             // Success
                             $mysqli->commit();
-                            header("Location:/pogo/views_admin/shinylistadmin.php?success=1");
+                            echo json_encode(array('status' => 1, 'message' => 'Novo shiny adicionado', 'debug' => 'copy: '.$copy));
                         }
                         else {
                             // Not admin
-                            header("Location:/pogo/views/shinylist.php?error=6");
+                            echo json_encode(array('status' => 0, 'message' => 'Não é usuário admin'));
                         }
                     }
                     else {
                         // Wrong password
-                        header("Location:/pogo/views_admin/shinylistadmin.php?error=5");
+                        echo json_encode(array('status' => 0, 'message' => 'Senha incorreta'));
                     }
                 }
                 else {
                     // No row fetch
-                    header("Location:/pogo/views_admin/shinylistadmin.php?error=4");
+                    echo json_encode(array('status' => 0, 'message' => 'Não foi possível recuperar resultados'));
                 }
             }
             else {
                 // SQL error
-                header("Location:/pogo/views_admin/shinylistadmin.php?error=3");
+                echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));
             }
             break;
 
@@ -284,7 +298,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $usermail = $_SESSION['email'];
             }
             else {
-                echo json_encode(array('status' => 0, 'message' => 'Missing param: email'));
+                echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: email'));
                 exit();
             }
 
@@ -313,7 +327,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $statementSelect->bind_param('is', $el, $_SESSION['email']);
                 $result = $statementSelect->execute();
                 if(!$result) {
-                    echo json_encode(array('status' => 0, 'message' => 'Error in select query'));
+                    echo json_encode(array('status' => 0, 'message' => 'Error in select query', 'debug' => $statement->error));
                     $mysqli->rollback();
                     exit();
                 }
@@ -325,7 +339,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $statementInsert->bind_param('iis', $el, $value, $_SESSION['email']);
                     $result = $statementInsert->execute();
                     if(!$result) {
-                        echo json_encode(array('status' => 0, 'message' => 'Error in insert query'));
+                        echo json_encode(array('status' => 0, 'message' => 'Error in insert query', 'debug' => $statement->error));
                         $mysqli->rollback();
                         exit();
                     }
@@ -337,7 +351,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $statementUpdate->bind_param('iii', $value, $userId, $el);
                     $result = $statementUpdate->execute();
                     if(!$result) {
-                        echo json_encode(array('status' => 0, 'message' => 'Error in insert query'));
+                        echo json_encode(array('status' => 0, 'message' => 'Error in insert query', 'debug' => $statement->error));
                         $mysqli->rollback();
                         exit();
                     }
@@ -349,7 +363,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $statementSelect->bind_param('is', $el, $_SESSION['email']);
                 $result = $statementSelect->execute();
                 if(!$result) {
-                    echo json_encode(array('status' => 0, 'message' => 'Error in select query'));
+                    echo json_encode(array('status' => 0, 'message' => 'Error in select query', 'debug' => $statement->error));
                     $mysqli->rollback();
                     exit();
                 }
@@ -361,7 +375,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $statementInsert->bind_param('iis', $el, $value, $_SESSION['email']);
                     $result = $statementInsert->execute();
                     if(!$result) {
-                        echo json_encode(array('status' => 0, 'message' => 'Error in insert query'));
+                        echo json_encode(array('status' => 0, 'message' => 'Error in insert query', 'debug' => $statement->error));
                         $mysqli->rollback();
                         exit();
                     }
@@ -373,7 +387,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $statementUpdate->bind_param('iii', $value, $userId, $el);
                     $result = $statementUpdate->execute();
                     if(!$result) {
-                        echo json_encode(array('status' => 0, 'message' => 'Error in insert query'));
+                        echo json_encode(array('status' => 0, 'message' => 'Error in insert query', 'debug' => $statement->error));
                         $mysqli->rollback();
                         exit();
                     }
@@ -383,17 +397,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mysqli->commit();
             echo json_encode(array('status' => 1));
             break;
-        default:
-            header("Location:/pogo/views/error.php");
-            break;
-    }
-}
-else if($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $operation = $_GET['operation'];
-
-    header('Content-Type: application/json');
-    switch ($operation) {
-
 
         //    ___ ___ __  __  _____   _____   ___ _  _ ___ _  ___   __
         //   | _ \ __|  \/  |/ _ \ \ / / __| / __| || |_ _| \| \ \ / /
@@ -401,12 +404,12 @@ else if($_SERVER['REQUEST_METHOD'] === 'GET') {
         //   |_|_\___|_|  |_|\___/ \_/ |___| |___/_||_|___|_|\_| |_|
         //
         case 'remove_shiny':
-            if(isset($_GET['pokemon'])) {
-                $pokemon_id = $_GET['pokemon'];
+            if(isset($_POST['pokemon'])) {
+                $pokemon_id = $_POST['pokemon'];
                 $pokemon_id = intval($pokemon_id);
             }
             else {
-                header("Location:/pogo/views_admin/shinylistadmin.php?error=1");
+                echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: pokemon'));
                 exit();
             }
 
@@ -415,18 +418,17 @@ else if($_SERVER['REQUEST_METHOD'] === 'GET') {
             $result = $statement->execute();
 
             if($result) {
-                header("Location:/pogo/views_admin/shinylistadmin.php?success=1");
+                echo json_encode(array('status' => 1, 'message' => 'Sucesso. Atualizado'));
             }
             else {
                 // SQL error
-                header("Location:/pogo/views_admin/shinylistadmin.php?error=3");
+                echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));
             }
             break;
         default:
             header("Location:/pogo/views/error.php");
             break;
     }
-
 }
 else {
     die("Método de requisição incorreto");
