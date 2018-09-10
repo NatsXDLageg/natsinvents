@@ -71,7 +71,7 @@ $cache_sufix = '?'.time();
 </head>
 <body>
     <div class="w3-container w3-padding-16">
-        <button class="w3-button button-all button-main print">Imprimir</button>
+        <button class="w3-button button-all button-main print">FAZER DOWNLOAD</button>
         <a id="link" class="w3-hide"></a>
     </div>
 

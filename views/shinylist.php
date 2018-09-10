@@ -40,7 +40,8 @@ $cache_sufix = '?'.time();
         }
 
         .marked {
-            border: 5px limegreen solid;
+            /*border: 5px #0ABF58 solid;*/
+            border: 5px #CCAD0A solid;
             border-radius: 10px;
         }
     </style>
@@ -49,15 +50,15 @@ $cache_sufix = '?'.time();
     <?php include($pogo_path."/resources/php_components/main_top_header.php"); ?>
 
     <div class="w3-container w3-padding-16">
-        <button class="w3-button button-all button-main update-list">Salvar</button>
-        <a href="shinyprint.php"><button class="w3-button button-all button-secondary">Imprimir</button></a>
+        <button class="w3-button button-all button-main update-list">SALVAR</button>
+        <a href="shinyprint.php"><button class="w3-button button-all button-secondary">VISUALIZAR</button></a>
     </div>
 
     <div id="shiny_list" class="w3-container"></div>
 
     <div class="w3-container w3-padding-16">
-        <button class="w3-button button-all button-main update-list">Salvar</button>
-        <a href="shinyprint.php"><button class="w3-button button-all button-secondary">Imprimir</button></a>
+        <button class="w3-button button-all button-main update-list">SALVAR</button>
+        <a href="shinyprint.php"><button class="w3-button button-all button-secondary">VISUALIZAR</button></a>
     </div>
 
     <?php include($pogo_path."/resources/php_components/main_bottom_footer.php"); ?>
