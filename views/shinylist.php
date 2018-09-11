@@ -49,6 +49,13 @@ $cache_sufix = '?'.time();
 <body>
     <?php include($pogo_path."/resources/php_components/main_top_header.php"); ?>
 
+    <div class="w3-container w3-padding theme-text">
+        <h2>Lista de shinies</h2>
+
+        <p>Clique ou toque sobre os pokemons para selecionar os shinies que você possui.</p>
+        <p>Clique em "Salvar" após terminar a seleção.</p>
+        <p>Clique em "Visualizar" para gerar uma imagem que poderá ser salva para compartilhar.</p>
+    </div>
     <div class="w3-container w3-padding-16">
         <button class="w3-button button-all button-main update-list">SALVAR</button>
         <a href="shinyprint.php"><button class="w3-button button-all button-secondary">VISUALIZAR</button></a>
