@@ -22,9 +22,9 @@ if(!isset($_POST['username']) || !isset($_POST['password']) || !isset($_POST['em
     die(json_encode(array('status' => 0, 'message' => 'Parâmetro incorreto', 'debug' => $_POST)));
 }
 
-$name = $_POST['username'];
+$name = utf8_decode($_POST['username']);
 $userpwd = md5($_POST['password']);
-$email = $_POST['email'];
+$email = utf8_decode($_POST['email']);
 $team = $_POST['team'];
 $level = $_POST['level'];
 

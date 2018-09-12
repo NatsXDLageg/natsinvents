@@ -16,6 +16,9 @@ body {
 .theme-text-faded {
     color: #00b9b9;
 }
+.theme-text-secondary {
+    color: #4D4208;
+}
 
 .input-center {
     width: 350px;
@@ -120,6 +123,39 @@ body {
     color: #5d5f61 !important;
 }
 
+.text-white-force {
+    color: white !important;
+}
+.text-white-force:hover {
+    color: white !important;
+}
+.text-white-force:focus {
+    color: white !important;
+}
+.text-white-force:active {
+    color: white !important;
+}
+.text-white-force:disabled {
+    color: white !important;
+}
+
 div.top-container {
     padding: 4px 16px;
+}
+
+@media only screen and (min-width:600px ) {
+    .duo_button_left {
+        padding-right: 5px;
+    }
+    .duo_button_right {
+        padding-left: 5px;
+    }
+}
+@media only screen and (max-width:599px ) {
+    .duo_button_left {
+        padding-bottom: 5px;
+    }
+    .duo_button_right {
+        padding-top: 5px;
+    }
 }

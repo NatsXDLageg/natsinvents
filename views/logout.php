@@ -57,5 +57,5 @@ if ($cookie) {
 unset($_SESSION['email']);
 unset($_SESSION['priority']);
 
-header("Location:./login.php");
+header("location:/pogo/index.php");
 exit();

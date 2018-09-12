@@ -51,7 +51,7 @@ $cache_sufix = '?'.time();
                 </div>
                 <div class="w3-container w3-padding">
                     <label for="team">Time</label>
-                    <input type="hidden" name="team"/>
+                    <input type="hidden" id="team" name="team"/>
                     <div id="team_select"></div>
                 </div>
                 <div class="w3-container w3-padding">
@@ -77,28 +77,28 @@ $cache_sufix = '?'.time();
 
         $('#submit').on('click', function() {
 
-            var re = new RegExp("^[a-zA-Z0-9_]+$");
-            if(!re.test($('input[name=name').val())) {
-                toastr['warning']("Nome de usuário somente pode conter caracteres alfanuméricos ou underscore (_)");
+            if($('#name').val() == "") {
+                toastr['warning']("Por favor informe o nome");
                 return;
             }
-            if($('input[name=email').val() == "") {
+            if($('#email').val() == "") {
                 toastr['warning']("Por favor informe o email");
                 return;
             }
-            if($('input[name=password').val() == "") {
+            if($('#password').val() == "") {
                 toastr['warning']("Por favor informe uma senha");
                 return;
             }
-            $('input[name=team').val(iconSelect.getSelectedValue());
-            $('input#level').val(clamp($('input#level').val(), 1, 40));
+            $(this).prop('disabled', true);
+            $('#team').val(iconSelect.getSelectedValue());
+            $('#level').val(clamp($('#level').val(), 1, 40));
 
             $.post( "/pogo/php_posts/post_register.php", {
-                username: $('input[name=name').val().trim(),
-                password: $('input[name=password').val().trim(),
-                email: $('input[name=email').val().trim(),
-                team: $('input[name=team').val(),
-                level: $('input#level').val()
+                username: $('#name').val().trim(),
+                password: $('#password').val().trim(),
+                email: $('#email').val().trim(),
+                team: $('#team').val(),
+                level: $('#level').val()
             })
             .done(function(data) {
                 if (data['status'] == 1) {
@@ -112,6 +112,10 @@ $cache_sufix = '?'.time();
                     console.log(data);
                     toastr['error'](data['message']);
                 }
+            })
+            .fail(function() {
+                toastr['error']('Erro desconhecido');
+                $('#submit').prop('disabled', false);
             });
         });
 
@@ -119,7 +123,7 @@ $cache_sufix = '?'.time();
 
             let sessionEmail = sessionStorage.getItem("email");
             if(sessionEmail !== null && sessionEmail !== undefined) {
-                $('input[name=email').val(sessionEmail);
+                $('#email').val(sessionEmail);
                 sessionStorage.removeItem('email');
             }
 

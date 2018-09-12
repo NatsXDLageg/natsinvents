@@ -118,7 +118,7 @@ $cache_sufix = '?'.time();
                 var html = '';
                 for(let row of data['shinies']) {
                     html += '<div class="w3-col s6 m4 l2 w3-center close_button_parent">' +
-                        '       <button class="button-all button-tertiary close_button" data-id="' + row['id'] + '">x</button>' +
+                        '       <button class="button-all button-tertiary close_button" data-id="' + row['id'] + '">&times</button>' +
                         '       <img src="/pogo/resources/images/pokemon/shiny/' + row['id'] + '.png" width="100%" onerror="this.src=\'/pogo/resources/images/pokemon/shiny/missing.png\';"/>' +
                         '       <p>' + row['nome'] + '</p>' +
                         '</div>';

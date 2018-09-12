@@ -28,25 +28,6 @@ $cache_sufix = '?'.time();
         <script type="text/javascript" src="/pogo/resources/js/jquery-3.3.1.min.js"></script>
         <script type="text/javascript" src="/pogo/resources/js/toastr.min.js"></script>
         <title>Nats Invents - Login</title>
-        <style>
-
-            @media only screen and (min-width:600px ) {
-                #login_button_div {
-                    padding-right: 5px;
-                }
-                #register_button_div {
-                    padding-left: 5px;
-                }
-            }
-            @media only screen and (max-width:599px ) {
-                #login_button_div {
-                    padding-bottom: 5px;
-                }
-                #register_button_div {
-                    padding-top: 5px;
-                }
-            }
-        </style>
     </head>
     <body>
         <div class="w3-display-container w3-col w3-half w3-hide-small theme-bg" style="height: 100vh;">
@@ -74,10 +55,10 @@ $cache_sufix = '?'.time();
                     </div>
                     <br/>
                     <div class="w3-row w3-padding">
-                        <div id="login_button_div" class="w3-col w3-half">
+                        <div class="w3-col w3-half duo_button_left">
                             <input type="button" id="submit" class="w3-button button-all button-main" value="ENTRAR" style="width: 100%"/>
                         </div>
-                        <div id="register_button_div" class="w3-col w3-half">
+                        <div class="w3-col w3-half duo_button_right">
                             <input type="button" id="register" class="w3-button button-all button-secondary" value="REGISTRAR-SE" style="width: 100%"/>
                         </div>
                     </div>
