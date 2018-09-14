@@ -35,14 +35,14 @@ $cache_sufix = '?'.time();
         <title>Nats Invents - Registrar</title>
     </head>
     <body>
-        <div class="w3-display-container w3-col w3-half" style="padding: 0; height: 100vh;">
+        <div class="w3-display-container w3-padding-16 w3-col w3-half" style="padding: 0; height: 100vh;">
             <div class="w3-display-middle w3-mobile">
                 <div class="w3-container w3-padding">
                     <h2 class="theme-text">Registre-se</h2>
                 </div>
                 <div class="w3-container w3-padding">
-                    <label for="name">Nome</label>
-                    <input type="text" id="name" name="name" placeholder="Nome" class="w3-input input-center" maxlength="50" required/>
+                    <label for="name">Nick / Nome de usuário no Pokemon GO</label>
+                    <input type="text" id="nick" name="nick" placeholder="BanNoCume" class="w3-input input-center" maxlength="30" required/>
                 </div>
                 <div class="w3-container w3-padding">
                     <label for="email">E-mail</label>
@@ -80,8 +80,8 @@ $cache_sufix = '?'.time();
 
         $('#submit').on('click', function() {
 
-            if($('#name').val() == "") {
-                toastr['warning']("Por favor informe o nome");
+            if($('#nick').val() == "") {
+                toastr['warning']("Por favor informe o nick / nome de usuário");
                 return;
             }
             if($('#email').val() == "") {
@@ -97,7 +97,7 @@ $cache_sufix = '?'.time();
             $('#level').val(clamp($('#level').val(), 1, 40));
 
             $.post( "/pogo/php_posts/post_register.php", {
-                username: $('#name').val().trim(),
+                username: $('#nick').val().trim(),
                 password: $('#password').val().trim(),
                 email: $('#email').val().trim(),
                 team: $('#team').val(),

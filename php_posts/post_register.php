@@ -22,7 +22,7 @@ if(!isset($_POST['username']) || !isset($_POST['password']) || !isset($_POST['em
     die(json_encode(array('status' => 0, 'message' => 'Parâmetro incorreto', 'debug' => $_POST)));
 }
 
-$name = $_POST['username'];
+$nick = $_POST['username'];
 $userpwd = md5($_POST['password']);
 $email = $_POST['email'];
 $team = $_POST['team'];
@@ -43,9 +43,24 @@ if($result) {
             die(json_encode(array('status' => 0, 'message' => 'Time ou nível com valor inválido')));
         }
 
-        $statement = $mysqli->prepare("Insert into usuario (nome, senha, email, time, nivel) values (?, ?, ?, ?, ?)");
+        $statement = $mysqli->prepare("Select id from usuario where nick_jogo = ?");
 
-        $statement->bind_param('ssssi', $name, $userpwd, $email, $team, $level);
+        $statement->bind_param('s', $nick);
+        $result = $statement->execute();
+
+        if (!$result) {
+            die(json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error)));
+        }
+        else {
+            $result = $statement->get_result();
+            if ($result->num_rows > 0) {
+                die(json_encode(array('status' => 0, 'message' => 'Já existe uma conta criada com esse nome de usuário')));
+            }
+        }
+
+        $statement = $mysqli->prepare("Insert into usuario (nick_jogo, senha, email, time, nivel) values (?, ?, ?, ?, ?)");
+
+        $statement->bind_param('ssssi', $nick, $userpwd, $email, $team, $level);
         $result = $statement->execute();
 
         if ($result) {
