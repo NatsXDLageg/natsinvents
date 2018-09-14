@@ -12,8 +12,6 @@ if(isset($_SESSION['email']))
     exit();
 }
 
-$cache_sufix = '?'.time();
-
 ?>
 
 <!DOCTYPE HTML>

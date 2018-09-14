@@ -10,8 +10,6 @@ if(!isset($check_login_admin)) {
     $check_login_admin = true;
 }
 
-$cache_sufix = '?'.time();
-
 ?>
 
 

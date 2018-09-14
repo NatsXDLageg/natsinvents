@@ -12,14 +12,13 @@
     <button onclick="document.getElementById('sidebar').style.display='none'" class="w3-bar-item button-all button-main w3-xlarge w3-center" style="height: 48px; cursor: pointer; margin-bottom: 8px; font-size: 18px;"><i class="fas fa-times"></i>FECHAR</button>
     <a id="link_pokestoplist" href="/pogo/views/pokestoplist.php" class="w3-bar-item w3-button button-all button-tertiary">
         <div class="w3-col w3-center icon-fix-width"><i class="fas fa-map-pin"></i></div>
-        <div class="w3-rest">Lista de Pokestops</div>
+        <div class="w3-rest">Pokestops e Gyms</div>
     </a>
     <?php if($user) { ?>
         <a id="link_shinylist" href="/pogo/views/shinylist.php" class="w3-bar-item w3-button button-all button-tertiary">
             <div class="w3-col w3-center icon-fix-width"><i class="fas fa-th"></i></div>
             <div class="w3-rest">Lista de Shinies</div>
         </a>
-<!--        <a href="#" class="w3-bar-item w3-button button-all button-tertiary">Link 3</a>-->
         <?php if($admin) { ?>
             <a id="link_shinylistadmin" href="/pogo/views_admin/shinylistadmin.php" class="w3-bar-item w3-button button-all button-tertiary">
                 <div class="w3-col w3-center icon-fix-width"><i class="fas fa-user-edit"></i></div>

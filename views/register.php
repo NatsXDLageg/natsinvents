@@ -10,8 +10,6 @@ if (isset($_POST['email'])) {
     $email = $_POST['email'];
 }
 
-$cache_sufix = '?'.time();
-
 ?>
 
 <!DOCTYPE HTML>

@@ -10,8 +10,7 @@ if(!isset($check_login)) {
     $check_login = true;
 }
 
-$cache_sufix = '?'.time();
-
+$user = isset($_SESSION['email']);
 ?>
 
 
@@ -39,11 +38,27 @@ $cache_sufix = '?'.time();
 
     <div>
         <div class="w3-container w3-padding theme-text">
-            <h2>Lista de pokestops</h2>
+            <h2>Lista de pokestops e ginásios</h2>
+        </div>
+
+        <div class="w3-container w3-padding">
+            <?php if($user) { ?>
+                <button class="w3-button button-all button-main full-width" onclick="document.getElementById('new_pokestop_gym_modal').style.display='block'">
+            <?php } else { ?>
+                <button class="w3-button button-all button-main full-width" onclick="window.location.replace('/pogo/views/login.php')">
+            <?php } ?>
+            <i class="fas fa-plus"></i> SUGERIR NOVO</button>
         </div>
 
         <div id="pokestop_list" class="w3-container w3-padding-16"></div>
     </div>
+
+    <?php
+    if($user) {
+        include($pogo_path."/views/new_pokestop_gym_modal.php");
+    }
+    include($pogo_path."/views/confirm_modal.php");
+    ?>
 
     <?php include($pogo_path."/resources/php_components/main_bottom_footer.php"); ?>
 </body>
@@ -61,11 +76,7 @@ $cache_sufix = '?'.time();
             if(data['status'] == 1) {
                 var html = '';
                 for(let row of data['data']) {
-                    html += '<div class="w3-container">' +
-                                '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-map-pin"></i></div>' +
-                                '<div class="w3-rest">' + row + '</div>' +
-                            '</div>' +
-                            '<hr>';
+                    html += getPokestopElement(row);
                 }
                 $('#pokestop_list').append(html);
             }
@@ -77,5 +88,14 @@ $cache_sufix = '?'.time();
             toastr['error']('Erro desconhecido');
         });
     });
+
+    function getPokestopElement(el) {
+        let html = '<div class="w3-container">' +
+            '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-map-pin"></i></div>' +
+            '<div class="w3-rest">' + el + '</div>' +
+            '</div>' +
+            '<hr>';
+        return html;
+    }
 </script>
 </html>

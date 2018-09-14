@@ -12,6 +12,8 @@
             <label for="research">Missão:</label>
             <input type="text" id="research" name="research" class="w3-input full-width w3-margin-bottom" maxlength="200"/>
 
+            <p class="theme-text-secondary-faded">Preencha pelo menos um desses campos<i class="fas fa-arrows-alt-v" style="margin-left: 8px"></i></p>
+
             <label for="reward">Recompensa:</label>
             <input type="text" id="reward" name="reward" class="w3-input full-width w3-margin-bottom" maxlength="200"/>
 
