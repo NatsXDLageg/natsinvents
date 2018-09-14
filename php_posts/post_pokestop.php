@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pokestops[] = $row['nome'];
                 }
 
-                echo json_encode(array('status' => 1, 'data' => array_map("utf8_encode", $pokestops)));
+                echo json_encode(array('status' => 1, 'data' => $pokestops));
             }
             else {
                 echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));

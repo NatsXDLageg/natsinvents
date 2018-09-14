@@ -49,7 +49,10 @@
             console.log(data);
             if (data['status'] == 1) {
                 toastr['success'](data['message']);
-                document.getElementById('new_research_modal').style.display='none';
+                $('#new_research_modal').hide();
+                $('#pokestop_name').val('');
+                $('#research').val('');
+                $('#reward').val('');
                 let rere = '';
                 if(research == '') {
                     rere = reward;
@@ -62,10 +65,10 @@
                 }
                 let el = {
                     'id': data['data']['insert_id'],
-                    'editable': 1,
+                    'removable': 1,
                     'pokestop': pokestop_name,
                     'missao': rere,
-                    'diferenca_tempo': 0
+                    'dia': moment().format('YYYY-MM-DD')
                 };
                 let html = getResearchElement(el);
                 if($('.research-container').length > 0) {
@@ -90,7 +93,34 @@
 
     function bindDeleteResearchButtonAction() {
         $('.research-delete-button').off().on('click', function() {
-            console.log('delete');
+
+            let research_div = $(this).closest('.research-container');
+            $('#confirm_yes').off().on('click', function() {
+                console.log(research_div);
+                deleteResearch(research_div);
+            });
+            $('#confirm_title').text('Deseja mesmo remover o informe de missão?');
+            document.getElementById('confirm_modal').style.display='block';
+        });
+    }
+
+    function deleteResearch(research_div) {
+        let research_id = research_div.attr('data-id');
+        $.post( "/pogo/php_posts/post_research.php", {
+            operation: 'delete_research',
+            research: research_id
+        })
+        .done(function(data) {
+            console.log(data);
+            if(data['status'] == 1) {
+                research_div.next().remove();
+                research_div.remove();
+                document.getElementById('confirm_modal').style.display='none';
+                toastr['success'](data['message']);
+            }
+            else {
+                toastr['error'](data['message']);
+            }
         });
     }
 </script>

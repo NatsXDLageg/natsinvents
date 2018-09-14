@@ -19,13 +19,18 @@ $cache_sufix = '?'.time();
 
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link rel="stylesheet" type="text/css" href="/pogo/resources/css/w3.css">
-    <link rel="stylesheet" type="text/css" href="/pogo/resources/css/theme.css<?php echo $cache_sufix ?>"><!-- ?random=@Environment.TickCount -->
-    <link rel="stylesheet" type="text/css" href="/pogo/resources/css/toastr.min.css">
-    <script src="/pogo/resources/js/jquery-3.3.1.min.js"></script>
-    <script src="/pogo/resources/js/toastr.min.js"></script>
-    <script src="/pogo/resources/js/html2canvas.js"></script>
+    <?php
+    $w3css = true;
+    $theme = true;
+    $jquery = true;
+    $fontAwesome = true;
+    $toastr = true;
+    $awesomplete = false;
+    $iconSelect = false;
+    $moment = false;
+    $html2canvas = true;
+    include($pogo_path."/resources/php_components/import_js_css.php");
+    ?>
     <title>Shiny Print</title>
     <style>
         body {
@@ -71,7 +76,7 @@ $cache_sufix = '?'.time();
 </head>
 <body>
     <div class="w3-container w3-padding-16">
-        <button class="w3-button button-all button-main print">FAZER DOWNLOAD</button>
+        <button class="w3-button button-all button-main print"><i class="fas fa-file-download" style="margin-right: 3vh;"></i>FAZER DOWNLOAD</button>
         <a id="link" class="w3-hide"></a>
     </div>
 
@@ -103,7 +108,7 @@ $cache_sufix = '?'.time();
                         }
                         html += '<img src="/pogo/resources/images/pokemon/shiny/' + row['id'] + '.png" width="100px" class="shiny_inner" style="' + marginLeft + '" onerror="this.src=\'/pogo/resources/images/pokemon/shiny/missing.png\';"/>';
 
-                        if(row['marked'] === '1') {
+                        if(row['marked'] == 1) {
                             let rand = Math.floor((Math.random() * 4) + 1);
                             html += '<img src="/pogo/resources/images/svg/circle' + rand + '.svg" width="100px" style="margin-left: -100px;" onerror="this.src=\'/pogo/resources/images/pokemon/shiny/missing.png\';"/>';
                         }

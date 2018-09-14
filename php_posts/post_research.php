@@ -40,9 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: reward'));
                 exit();
             }
-            $pokestop_name = utf8_decode($_POST['pokestop_name']);
-            $research = ($_POST['research'] !== '') ? utf8_decode($_POST['research']) : null;
-            $reward = ($_POST['reward'] !== '') ? utf8_decode($_POST['reward']) : null;
+            $pokestop_name = $_POST['pokestop_name'];
+            $research = ($_POST['research'] !== '') ? $_POST['research'] : null;
+            $reward = ($_POST['reward'] !== '') ? $_POST['reward'] : null;
 
             if(!isset($_SESSION['email'])) {
                 echo json_encode(array('status' => 0, 'message' => 'Não pode adicionar se não estiver loggado'));
@@ -81,11 +81,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //   |____|___|___/ |_|   |_|_\___|___/___/_/ \_\_|_\\___|_||_|___|___/ |___/ |_|   |_| |_|_\___\___/|_|_\___| |_|   |_|
         //
         case 'list_researches_by_priority':
+            $index = isset($_POST['index']) ? $_POST['index'] : 0;
+            $loaded = 10;
+
             $userMail = null;
             if(isset($_SESSION['email'])) {
                 $userMail = $_SESSION['email'];
             }
 
+            if(!$mysqli->query('SET time_zone = \'-3:00\'')) {
+                echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $mysqli->error));
+                exit();
+            }
             $query = "
                 Select
                     im.id,
@@ -95,32 +102,91 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         WHEN im.recompensa IS NULL THEN im.descricao
                         ELSE CONCAT(im.descricao, ': ', im.recompensa)
                     END as missao,
-                    (1.0 / (TIMESTAMPDIFF(MINUTE, im.criado_em, NOW()) + 1)) * COALESCE(u.prioridade, 1) as prior,
-                    TIMESTAMPDIFF(MINUTE, im.criado_em, NOW()) as diferenca_tempo,
-                    CASE WHEN u.email = ? THEN 1 ELSE 0 END as editable
+                    (100.0 / (TIMESTAMPDIFF(SECOND, im.criado_em, NOW()) + 1)) * COALESCE(u.prioridade, 1) as prior,
+                    DATE(im.criado_em) as dia,
+                    CASE WHEN u.email = ? THEN 1 ELSE 0 END as removable
                 from
                     informe_missao im
                     left join usuario u on u.id = im.id_usuario
-                order by prior DESC
-                limit 10
+                order by dia DESC, prior DESC
+                limit ?, ?
             ";
             $statement = $mysqli->prepare($query);
-            $statement->bind_param('s', $userMail);
+            $statement->bind_param('sii', $userMail, $index, $loaded);
             $result = $statement->execute();
 
             if($result) {
                 $result = $statement->get_result();
+                $loaded = $result->num_rows;
                 $researches = array();
                 while($row = $result->fetch_array(MYSQLI_ASSOC)) {
-                    $researches[] = array_map("utf8_encode", $row);
+                    $researches[] = $row;
                 }
 
-                echo json_encode(array('status' => 1, 'data' => $researches));
+                echo json_encode(array('status' => 1, 'data' =>  array('research' => $researches, 'loaded' => $loaded)));
             }
             else {
                 echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));
                 exit();
             }
+            break;
+
+        //    ___  ___ _    ___ _____ ___   ___ ___ ___ ___   _   ___  ___ _  _
+        //   |   \| __| |  | __|_   _| __| | _ \ __/ __| __| /_\ | _ \/ __| || |
+        //   | |) | _|| |__| _|  | | | _|  |   / _|\__ \ _| / _ \|   / (__| __ |
+        //   |___/|___|____|___| |_| |___| |_|_\___|___/___/_/ \_\_|_\\___|_||_|
+        //
+        case 'delete_research':
+            if(!isset($_POST['research'])) {
+                echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: research'));
+                exit();
+            }
+            $researchId = $_POST['research'];
+
+            if(!isset($_SESSION['email'])) {
+                echo json_encode(array('status' => 0, 'message' => 'Não tem permissão para essa ação!'));
+                exit();
+            }
+            $userMail = $_SESSION['email'];
+
+            $query = "
+                Select
+                    im.id
+                from
+                    informe_missao im
+                    left join usuario u on u.id = im.id_usuario
+                where
+                    u.email = ?
+                    and im.id = ?
+            ";
+            $statement = $mysqli->prepare($query);
+            $statement->bind_param('si', $userMail, $researchId);
+            $result = $statement->execute();
+
+            if(!$result) {
+                echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));
+                exit();
+            }
+
+            $result = $statement->get_result();
+            if($result->num_rows == 0) {
+                echo json_encode(array('status' => 0, 'message' => 'Não tem permissão para essa ação!'));
+            }
+            else {
+                // User can remove the report
+
+                $statement = $mysqli->prepare("delete from informe_missao where id = ?");
+                $statement->bind_param('i', $researchId);
+                $result = $statement->execute();
+
+                if(!$result) {
+                    echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));
+                }
+                else {
+                    echo json_encode(array('status' => 1, 'message' => 'Removido com sucesso'));
+                }
+            }
+
             break;
         default:
             header("Location:/pogo/views/error.php");

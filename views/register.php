@@ -18,16 +18,19 @@ $cache_sufix = '?'.time();
 
 <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, user-scalable=no">
-        <link rel="stylesheet" type="text/css" href="/pogo/resources/css/w3.css">
-        <link rel="stylesheet" type="text/css" href="/pogo/resources/css/theme.css<?php echo $cache_sufix; ?>"><!-- ?random=@Environment.TickCount -->
-        <link rel="stylesheet" type="text/css" href="/pogo/resources/css/iconselect.css" >
-        <link rel="stylesheet" type="text/css" href="/pogo/resources/css/toastr.min.css">
-        <script type="text/javascript" src="/pogo/resources/js/jquery-3.3.1.min.js"></script>
-        <script type="text/javascript" src="/pogo/resources/js/iconselect.js"></script>
-        <script type="text/javascript" src="/pogo/resources/js/iscroll.js"></script>
-        <script type="text/javascript" src="/pogo/resources/js/toastr.min.js"></script>
+        <?php
+        $w3css = true;
+        $theme = true;
+        $jquery = true;
+        $fontAwesome = true;
+        $toastr = true;
+        $awesomplete = false;
+        $iconSelect = true;
+        $moment = false;
+        $html2canvas = false;
+        include($pogo_path."/resources/php_components/import_js_css.php");
+        ?>
 
         <title>Nats Invents - Registrar</title>
     </head>
@@ -65,7 +68,7 @@ $cache_sufix = '?'.time();
         </div>
         <div class="w3-display-container w3-col w3-half w3-hide-small theme-bg" style="height: 100vh;">
             <div class="w3-display-middle" style="width: 30vw; height: 30vw;">
-                <img src="/pogo/resources/images/Logo.png" style="width: 100%; height: 100%;"/>
+                <a href="/pogo/index.php"><img src="/pogo/resources/images/Logo.png" style="width: 100%; height: 100%;"/></a>
             </div>
         </div>
 

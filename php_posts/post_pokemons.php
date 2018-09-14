@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $result = $statement->get_result();
                 $pokemons = array();
                 while($row = $result->fetch_array(MYSQLI_ASSOC)) {
-                    $pokemons[] = array_map("utf8_encode", $row);
+                    $pokemons[] = $row;
                 }
 
                 echo json_encode(array('status' => 1, 'pokemons' => $pokemons));
@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $result = $statement->get_result();
                 $pokemons = array();
                 while($row = $result->fetch_array(MYSQLI_ASSOC)) {
-                    $pokemons[] = array_map("utf8_encode", $row);
+                    $pokemons[] = $row;
                 }
 
                 echo json_encode(array('status' => 1, 'shinies' => $pokemons));
@@ -156,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = array();
                 while($row = $result->fetch_array(MYSQLI_ASSOC)) {
                     $family = array();
-                    $family[] = array_map("utf8_encode", $row);
+                    $family[] = $row;
                     $dexNum = intval($row['pokedexevo']) + 1;
                     $elementFound = true;
                     while ($elementFound) {
@@ -189,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
 
                         while($row2 = $result2->fetch_array(MYSQLI_ASSOC)) {
-                            $family[] = array_map("utf8_encode", $row2);
+                            $family[] = $row2;
                         }
 
                         $dexNum = $dexNum + 1;

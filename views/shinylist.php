@@ -19,13 +19,19 @@ $cache_sufix = '?'.time();
 
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, user-scalable=no">
-    <link rel="stylesheet" type="text/css" href="/pogo/resources/css/w3.css">
-    <link rel="stylesheet" type="text/css" href="/pogo/resources/css/theme.css<?php echo $cache_sufix ?>"><!-- ?random=@Environment.TickCount -->
-    <link rel="stylesheet" type="text/css" href="/pogo/resources/css/toastr.min.css">
-    <script src="/pogo/resources/js/jquery-3.3.1.min.js"></script>
-    <script src="/pogo/resources/js/toastr.min.js"></script>
+    <?php
+    $w3css = true;
+    $theme = true;
+    $jquery = true;
+    $fontAwesome = true;
+    $toastr = true;
+    $awesomplete = false;
+    $iconSelect = false;
+    $moment = false;
+    $html2canvas = false;
+    include($pogo_path."/resources/php_components/import_js_css.php");
+    ?>
     <title>Shiny List</title>
     <style>
 
@@ -49,23 +55,25 @@ $cache_sufix = '?'.time();
 <body>
     <?php include($pogo_path."/resources/php_components/main_top_header.php"); ?>
 
-    <div class="w3-container w3-padding theme-text">
-        <h2>Lista de shinies</h2>
+    <div>
+        <div class="w3-container w3-padding theme-text">
+            <h2>Lista de shinies</h2>
 
-        <p>Clique ou toque sobre os pokemons para selecionar os shinies que você possui.</p>
-        <p>Clique em "Salvar" após terminar a seleção.</p>
-        <p>Clique em "Visualizar" para gerar uma imagem que poderá ser salva para compartilhar.</p>
-    </div>
-    <div class="w3-container w3-padding-16">
-        <button class="w3-button button-all button-main update-list">SALVAR</button>
-        <a href="shinyprint.php"><button class="w3-button button-all button-secondary">VISUALIZAR</button></a>
-    </div>
+            <p>Clique ou toque sobre os pokemons para selecionar os shinies que você possui.</p>
+            <p>Clique em "Salvar" após terminar a seleção.</p>
+            <p>Clique em "Visualizar" para gerar uma imagem que poderá ser salva para compartilhar.</p>
+        </div>
+        <div class="w3-container w3-padding-16">
+            <button class="w3-button button-all button-main update-list"><i class="fas fa-save"></i>SALVAR</button>
+            <a href="shinyprint.php"><button class="w3-button button-all button-secondary"><i class="fas fa-eye"></i>VISUALIZAR</button></a>
+        </div>
 
-    <div id="shiny_list" class="w3-container"></div>
+        <div id="shiny_list" class="w3-container"></div>
 
-    <div class="w3-container w3-padding-16">
-        <button class="w3-button button-all button-main update-list">SALVAR</button>
-        <a href="shinyprint.php"><button class="w3-button button-all button-secondary">VISUALIZAR</button></a>
+        <div class="w3-container w3-padding-16">
+            <button class="w3-button button-all button-main update-list"><i class="fas fa-save"></i>SALVAR</button>
+            <a href="shinyprint.php"><button class="w3-button button-all button-secondary"><i class="fas fa-eye"></i>VISUALIZAR</button></a>
+        </div>
     </div>
 
     <?php include($pogo_path."/resources/php_components/main_bottom_footer.php"); ?>
@@ -74,6 +82,7 @@ $cache_sufix = '?'.time();
 <script>
 
     $(document).ready(function() {
+        $('#link_shinylist').addClass('focus-bg');
 
         $.post( "/pogo/php_posts/post_pokemons.php", {
             operation: 'get_shinies_by_dex_evo',
@@ -85,7 +94,7 @@ $cache_sufix = '?'.time();
                 var html = '';
                 for(let row of data['shinies']) {
                     let marked = '';
-                    if(row['marked'] === '1') {
+                    if(row['marked'] == 1) {
                         marked = ' marked';
                     }
                     html += '<div class="w3-col s4 m3 l2 w3-center shiny-pokemon'+marked+'" data-id="'+row['id']+'">' +

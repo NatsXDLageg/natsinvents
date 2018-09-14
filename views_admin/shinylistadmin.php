@@ -19,13 +19,19 @@ $cache_sufix = '?'.time();
 
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, user-scalable=no">
-    <link rel="stylesheet" type="text/css" href="/pogo/resources/css/w3.css">
-    <link rel="stylesheet" type="text/css" href="/pogo/resources/css/theme.css<?php echo $cache_sufix ?>"><!-- ?random=@Environment.TickCount -->
-    <link rel="stylesheet" type="text/css" href="/pogo/resources/css/toastr.min.css">
-    <script src="/pogo/resources/js/jquery-3.3.1.min.js"></script>
-    <script src="/pogo/resources/js/toastr.min.js"></script>
+    <?php
+    $w3css = true;
+    $theme = true;
+    $jquery = true;
+    $fontAwesome = true;
+    $toastr = true;
+    $awesomplete = false;
+    $iconSelect = false;
+    $moment = false;
+    $html2canvas = false;
+    include($pogo_path."/resources/php_components/import_js_css.php");
+    ?>
     <title>Shiny List - Admin</title>
     <style>
         .close_button {
@@ -79,7 +85,7 @@ $cache_sufix = '?'.time();
 <script>
 
     $(document).ready(function() {
-
+        $('#link_shinylistadmin').addClass('focus-bg');
 
         //    _    ___   _   ___    ___ ___ _    ___ ___ _____   _    ___ ___ _____
         //   | |  / _ \ /_\ |   \  / __| __| |  | __/ __|_   _| | |  |_ _/ __|_   _|

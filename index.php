@@ -18,8 +18,6 @@ if (isset($_SESSION['start_path'])) {
     exit();
 }
 
-$cache_sufix = '?'.time();
-
 $user = isset($_SESSION['email']);
 $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
 
@@ -30,25 +28,22 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
 
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, user-scalable=no">
-    <link rel="stylesheet" type="text/css" href="/pogo/resources/css/w3.css">
-    <link rel="stylesheet" type="text/css" href="/pogo/resources/css/all.min.css">
-    <link rel="stylesheet" type="text/css" href="/pogo/resources/css/awesomplete.css">
-    <link rel="stylesheet" type="text/css" href="/pogo/resources/css/theme.css<?php echo $cache_sufix ?>"><!-- ?random=@Environment.TickCount -->
-    <link rel="stylesheet" type="text/css" href="/pogo/resources/css/toastr.min.css">
-    <script type="text/javascript" src="/pogo/resources/js/jquery-3.3.1.min.js"></script>
-    <script type="text/javascript" src="/pogo/resources/js/toastr.min.js"></script>
-    <script type="text/javascript" src="/pogo/resources/js/awesomplete.min.js"></script>
+    <?php
+    $w3css = true;
+    $theme = true;
+    $jquery = true;
+    $fontAwesome = true;
+    $toastr = true;
+    $awesomplete = true;
+    $iconSelect = false;
+    $moment = true;
+    $html2canvas = false;
+    include($pogo_path."/resources/php_components/import_js_css.php");
+    ?>
     <title>Nats Invents - Início</title>
 
     <style>
-        .full-width {
-            width: 100%;
-        }
-        .icon-fix-width {
-            width: 32px;
-        }
         .research-container {
             margin-top: 16px;
         }
@@ -64,8 +59,14 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
             <div id="research_div" class="w3-col w3-half w3-mobile">
                 <h2>Missões</h2>
                 <?php if($user) { ?>
-                    <button class="w3-button button-all button-main full-width" onclick="document.getElementById('new_research_modal').style.display='block'"><i class="fas fa-plus"></i> Informar Missão</button>
+                    <button class="w3-button button-all button-main full-width" onclick="document.getElementById('new_research_modal').style.display='block'"><i class="fas fa-plus"></i> INFORMAR MISSÃO</button>
+                <?php } else { ?>
+                    <button class="w3-button button-all button-main full-width" onclick="window.location.replace('/pogo/views/login.php')"><i class="fas fa-plus"></i> INFORMAR MISSÃO</button>
                 <?php } ?>
+                <div id="loading_reasearch" class="w3-container w3-padding w3-center">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                <button id="load_more_researches" class="w3-button button-all button-secondary full-width">CARREGAR MAIS</button>
             </div>
             <div id="message_div" class="w3-col w3-half w3-mobile">
 
@@ -75,6 +76,7 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
         if($user) {
             include($pogo_path."/views/new_research_modal.php");
         }
+        include($pogo_path."/views/confirm_modal.php");
     ?>
 
     <?php include($pogo_path."/resources/php_components/main_bottom_footer.php"); ?>
@@ -82,8 +84,11 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
 
 <script>
     var awesomplete;
+    var research_index = 0;
 
     $(document).ready(function() {
+        moment.locale('pt-br');
+
         <?php if($user) { ?>
             var pokestop_name_input = document.getElementById("pokestop_name");
             awesomplete = new Awesomplete(pokestop_name_input);
@@ -93,7 +98,6 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
                 operation: 'list_pokestops_by_name'
             })
             .done(function(data) {
-                console.log(data);
                 if(data['status'] == 1) {
                     awesomplete.list = data['data'];
                 }
@@ -127,33 +131,63 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
             });
         <?php } ?>
 
+        loadResearches();
+    });
+
+    $('#load_more_researches').on('click', function() {
+        loadResearches();
+    });
+
+    function loadResearches() {
+        $('#loading_reasearch').show();
+        $('#load_more_researches').hide();
         $.post( "/pogo/php_posts/post_research.php", {
-            operation: 'list_researches_by_priority'
+            operation: 'list_researches_by_priority',
+            index: research_index
         })
         .done(function(data) {
+            console.log(data);
             if(data['status'] == 1) {
+                let loaded = parseInt(data['data']['loaded']);
+                if(loaded == 0) {
+                    $('#load_more_researches').remove();
+                }
                 var html = '';
-                for (let research of data['data']) {
+                for (let research of data['data']['research']) {
 
                     html += getResearchElement(research);
                 }
 
-                $('#research_div').append(html);
+                $('#loading_reasearch').before(html);
+                research_index += loaded;
                 <?php if($user) { ?>
-                   bindDeleteResearchButtonAction();
+                    bindDeleteResearchButtonAction();
                 <?php } ?>
             }
             else {
                 toastr['error']('Ocorreu um erro: ' + data['message'] + ' (' + data['status'] + ')');
             }
+            $('#loading_reasearch').hide();
+            $('#load_more_researches').show();
         });
-    });
+    }
 
     function getResearchElement(research) {
-        let html =
-        '<div class="w3-container w3-row w3-display-container theme-text-secondary research-container" data-id="' + research['id'] + '">';
+        let faded = 'theme-text-secondary';
 
-        if(research['editable'] == 1) {
+        let researchMoment = moment(research['dia'], "YYYY-MM-DD").format('L');
+        let nowMoment = moment().format('L');
+
+        let day = 'Hoje';
+        if(researchMoment !== nowMoment) {
+            faded = 'theme-text-secondary-faded';
+            day = researchMoment;
+        }
+
+        let html =
+        '<div class="w3-container w3-row w3-display-container ' + faded + ' research-container" data-id="' + research['id'] + '">';
+
+        if(research['removable'] == 1) {
             html +=
                 '<span class="w3-button button-all button-tertiary w3-display-topright research-delete-button"><i class="fas fa-times"></i></span>';
         }
@@ -165,41 +199,10 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
             '<div class="w3-rest">' + research['pokestop'] + '</div>' +
 
             '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-clock"></i></div>' +
-            '<div class="w3-rest">' + minutesToTimePast(research['diferenca_tempo']) + '</div>' +
+            '<div class="w3-rest">' + day + '</div>' +
             '</div>' +
             '<hr>';
         return html;
-    }
-
-    function minutesToTimePast(minutes) { //Portuguese only
-        let minutesAgo = ' minutos atrás';
-        let hoursAgo = ' horas atrás';
-        let daysAgo = ' dias atrás';
-        try {
-            minutes = parseInt(minutes);
-        }
-        catch(e) {
-            return '';
-        }
-        if(minutes < 0) {
-            return '';
-        }
-        else if(minutes < 10) {
-            return 'Poucos' + minutesAgo;
-        }
-        else if(minutes < 60) {
-            return minutes + minutesAgo;
-        }
-        else {
-            let hours = Math.floor(minutes / 60);
-            if(hours < 24) {
-                return hours + hoursAgo;
-            }
-            else {
-                let days = Math.floor(hours / 24);
-                return days + daysAgo;
-            }
-        }
     }
 </script>
 </html>
