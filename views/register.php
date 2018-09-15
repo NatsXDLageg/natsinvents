@@ -6,26 +6,9 @@ if(!isset($server_var)) {
 }
 
 $email = "";
-$errormessage = "";
 if (isset($_POST['email'])) {
     $email = $_POST['email'];
 }
-if (isset($_GET['error'])) {
-    $error = $_GET['error'];
-    switch ($error) {
-        case 1:
-            $errormessage = "Email já cadastrado. Tente outro";
-            break;
-        case 2:
-            $errormessage = "Não tente burlar o sistema";
-            break;
-        default:
-            $errormessage = "Erro desconhecido, por favor tente novamente (".$error.")";
-            break;
-    }
-}
-
-$cache_sufix = '?'.time();
 
 ?>
 
@@ -33,55 +16,57 @@ $cache_sufix = '?'.time();
 
 <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <link rel="stylesheet" type="text/css" href="/pogo/resources/css/w3.css">
-        <link rel="stylesheet" type="text/css" href="/pogo/resources/css/theme.css<?php echo $cache_sufix; ?>"><!-- ?random=@Environment.TickCount -->
-        <link rel="stylesheet" type="text/css" href="/pogo/resources/css/iconselect.css" >
-        <script src="/pogo/resources/js/jquery-3.3.1.min.js"></script>
-        <script type="text/javascript" src="/pogo/resources/js/iconselect.js"></script>
-        <script type="text/javascript" src="/pogo/resources/js/iscroll.js"></script>
+        <meta name="viewport" content="width=device-width, user-scalable=no">
+        <?php
+        $w3css = true;
+        $theme = true;
+        $jquery = true;
+        $fontAwesome = true;
+        $toastr = true;
+        $awesomplete = false;
+        $iconSelect = true;
+        $moment = false;
+        $html2canvas = false;
+        include($pogo_path."/resources/php_components/import_js_css.php");
+        ?>
 
         <title>Nats Invents - Registrar</title>
     </head>
     <body>
-        <?php include($_SERVER['POGO_ROOT']."/resources/php_components/error_top_container.php"); ?>
-        <?php include($_SERVER['POGO_ROOT']."/resources/php_components/warning_top_container.php"); ?>
-        <div class="w3-display-container w3-col w3-half" style="padding: 0; height: 100vh;">
+        <div class="w3-display-container w3-padding-16 w3-col w3-half" style="padding: 0; height: 100vh;">
             <div class="w3-display-middle w3-mobile">
-                <form id="form" action="/pogo/php_posts/post_register.php" method="post">
-                    <div class="w3-container w3-padding">
-                        <h2 class="theme-text">Registre-se</h2>
-                    </div>
-                    <div class="w3-container w3-padding">
-                        <label for="name">Nome</label>
-                        <input type="text" id="name" name="name" placeholder="Nome" class="w3-input input-center" maxlength="50" required/>
-                    </div>
-                    <div class="w3-container w3-padding">
-                        <label for="email">E-mail</label>
-                        <input type="email" id="email" name="email" placeholder="ex@ex.com" value="<?php echo $email ?>" class="w3-input input-center" maxlength="40" required/>
-                    </div>
-                    <div class="w3-container w3-padding">
-                        <label for="password">Senha</label>
-                        <input type="password" id="password" name="password" class="w3-input input-center" maxlength="50" required/>
-                    </div>
-                    <div class="w3-container w3-padding">
-                        <label for="team">Time</label>
-                        <input type="hidden" name="team"/>
-                        <div id="team_select"></div>
-                    </div>
-                    <div class="w3-container w3-padding">
-                        <label for="level">Nível</label>
-                        <input type="number" id="level" name="level" value="1" class="w3-input input-center" min="1" max="40" required/>
-                    </div>
-                    <div class="w3-container w3-padding">
-                        <input type="submit" class="w3-button theme-bg button-main" style="width: 100%" value="CONFIRMAR"/>
-                    </div>
-                </form>
+                <div class="w3-container w3-padding">
+                    <h2 class="theme-text">Registre-se</h2>
+                </div>
+                <div class="w3-container w3-padding">
+                    <label for="name">Nick / Nome de usuário no Pokemon GO</label>
+                    <input type="text" id="nick" name="nick" placeholder="BanNoCume" class="w3-input input-center" maxlength="30" required/>
+                </div>
+                <div class="w3-container w3-padding">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" placeholder="ex@ex.com" value="<?php echo $email ?>" class="w3-input input-center" maxlength="40" required/>
+                </div>
+                <div class="w3-container w3-padding">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" name="password" class="w3-input input-center" maxlength="50" required/>
+                </div>
+                <div class="w3-container w3-padding">
+                    <label for="team">Time</label>
+                    <input type="hidden" id="team" name="team"/>
+                    <div id="team_select"></div>
+                </div>
+                <div class="w3-container w3-padding">
+                    <label for="level">Nível</label>
+                    <input type="number" id="level" name="level" value="1" class="w3-input input-center" min="1" max="40" required/>
+                </div>
+                <div class="w3-container w3-padding">
+                    <input type="button" id="submit" class="w3-button theme-bg button-main" style="width: 100%" value="CONFIRMAR"/>
+                </div>
             </div>
         </div>
         <div class="w3-display-container w3-col w3-half w3-hide-small theme-bg" style="height: 100vh;">
             <div class="w3-display-middle" style="width: 30vw; height: 30vw;">
-                <img src="/pogo/resources/images/Logo.png" style="width: 100%; height: 100%;"/>
+                <a href="/pogo/index.php"><img src="/pogo/resources/images/Logo.png" style="width: 100%; height: 100%;"/></a>
             </div>
         </div>
 
@@ -91,26 +76,57 @@ $cache_sufix = '?'.time();
         var iconSelect;
         IconSelect.COMPONENT_ICON_FILE_PATH = "/pogo/resources/images/icon-select/arrow.png";
 
-        $('#form').submit(function() {
+        $('#submit').on('click', function() {
 
-            var re = new RegExp("^[a-zA-Z0-9_]+$");
-            if(!re.test($('input[name=username').val())) {
-                alert("Nome de usuário somente pode conter caracteres alfanuméricos ou underscore ( _ )");
-                return false;
+            if($('#nick').val() == "") {
+                toastr['warning']("Por favor informe o nick / nome de usuário");
+                return;
             }
-            if($('input[name=password').val() == "") {
-                alert("Por favor informe uma senha");
-                return false;
+            if($('#email').val() == "") {
+                toastr['warning']("Por favor informe o email");
+                return;
             }
-            $('input[name=team').val(iconSelect.getSelectedValue());
-            $('input#level').val(clamp($('input#level').val(), 1, 40));
-            return true; // return false to cancel form action
+            if($('#password').val() == "") {
+                toastr['warning']("Por favor informe uma senha");
+                return;
+            }
+            $(this).prop('disabled', true);
+            $('#team').val(iconSelect.getSelectedValue());
+            $('#level').val(clamp($('#level').val(), 1, 40));
+
+            $.post( "/pogo/php_posts/post_register.php", {
+                username: $('#nick').val().trim(),
+                password: $('#password').val().trim(),
+                email: $('#email').val().trim(),
+                team: $('#team').val(),
+                level: $('#level').val()
+            })
+            .done(function(data) {
+                if (data['status'] == 1) {
+                    toastr['warning'](data['message']);
+
+                    setTimeout(function() {
+                        window.location.replace('login.php');
+                    }, 5000);
+                }
+                else {
+                    console.log(data);
+                    toastr['error'](data['message']);
+                }
+            })
+            .fail(function() {
+                toastr['error']('Erro desconhecido');
+                $('#submit').prop('disabled', false);
+            });
         });
 
         $(document).ready(function() {
-            <?php include($_SERVER['POGO_ROOT']."/resources/php_components/on_doc_ready_vanish.php"); ?>
 
-            //selectedText.value = iconSelect.getSelectedValue();
+            let sessionEmail = sessionStorage.getItem("email");
+            if(sessionEmail !== null && sessionEmail !== undefined) {
+                $('#email').val(sessionEmail);
+                sessionStorage.removeItem('email');
+            }
 
             iconSelect = new IconSelect("team_select");
 

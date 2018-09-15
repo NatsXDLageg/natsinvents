@@ -1,21 +1,52 @@
 <?php
 
+function storeTokenForUser($mysqli, $user, $token) {
+
+// Remove after
+if(!isset($mysqli)) {
+    $mysqli = new mysqli();
+}
+
+    $statement = $mysqli->prepare("Insert into session (id_usuario, token) values (?, ?);");
+    $statement->bind_param('is', $user, $token);
+    $result = $statement->execute();
+
+    if(!$result) {
+        die(json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error)));
+    }
+}
+
 session_start();
 
 if(!isset($php_connection)) {
     include($_SERVER['DOCUMENT_ROOT']."/../common_files/php_connection.php");
     $php_connection = true;
 }
+if(!isset($server_var)) {
+    include($_SERVER['DOCUMENT_ROOT']."/../common_files/server_var.php");
+    $server_var = true;
+}
 
-if (!$_SERVER['REQUEST_METHOD'] === 'POST') {
+// Remove after
+if(!isset($mysqli)) {
+    $mysqli = new mysqli();
+}
 
-    die("Método de requisição incorreto");
+header('Content-Type: application/json');
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+
+    die(json_encode(array('status' => 0, 'message' => 'Método incorreto de requisição')));
+}
+
+if(!isset($_POST['password']) || !isset($_POST['email'])) {
+    die(json_encode(array('status' => 0, 'message' => 'Parâmetro incorreto', 'debug' => $_POST)));
 }
 
 $email = $_POST['email'];
 $userpwd = $_POST['password'];
+$rememberme = $_POST['rememberme'] === 'true';
 
-$statement = $mysqli->prepare("Select senha, status from usuario where email = ?");
+$statement = $mysqli->prepare("Select id, senha, status, prioridade from usuario where email = ?");
 $statement->bind_param('s', $email);
 $result = $statement->execute();
 
@@ -30,26 +61,34 @@ if($result) {
 
             if ($row["status"] == '1') {
 
-                $_SESSION['email'] = $email;
+                if($rememberme) {
+                    $user = $row['id'];
 
-                if (isset($_SESSION['start_path'])) {
-                    $location = "Location:" . $_SESSION['start_path'];
-                    unset($_SESSION['start_path']);
-                    header($location);
+                    $token = bin2hex(openssl_random_pseudo_bytes(256)); // generate a token, should be 128 - 256 bit
+                    storeTokenForUser($mysqli, $user, $token);
+                    $cookie = $user . ':' . $token;
+                    $mac = hash_hmac('sha256', $cookie, $secret_key);
+                    $cookie .= ':' . $mac;
+                    setcookie('rememberme', $cookie, time()+60*60*24*365, '/');
                 }
-                else {
-                    header("Location:/pogo");
-                }
+
+                $_SESSION['email'] = $email;
+                $_SESSION['priority'] = intval($row["prioridade"]);
+
+                die(json_encode(array('status' => 1, 'message' => 'Sucesso')));
             }
             else {
-                header("Location:/pogo/views/login.php?error=2");
+                die(json_encode(array('status' => 0, 'message' => 'Não foi possível fazer login')));
             }
+        }
+        else {
+            die(json_encode(array('status' => 0, 'message' => 'Usuário ou senha incorreto')));
         }
     }
     else {
-        header("Location:/pogo/views/login.php?error=1");
+        die(json_encode(array('status' => 0, 'message' => 'Usuário ou senha incorreto')));
     }
 }
 else {
-    header("Location:/pogo/views/login.php?error=900");
+    die(json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error)));
 }
