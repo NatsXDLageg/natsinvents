@@ -87,6 +87,7 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
     var research_index = 0;
 
     $(document).ready(function() {
+        $('#link_index').addClass('focus-bg');
         moment.locale('pt-br');
 
         <?php if($user) { ?>
