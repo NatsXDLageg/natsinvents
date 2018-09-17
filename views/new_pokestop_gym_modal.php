@@ -51,9 +51,6 @@
                 $('#new_research_modal').hide();
                 $('#pokestop_name').val('');
                 $('#aliases').val('');
-                let el = pokestop_name;
-                let html = getPokestopElement(el);
-                $('#pokestop_list').append(html);
             }
             else {
                 toastr['error'](data['message']);

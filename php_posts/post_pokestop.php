@@ -33,20 +33,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: pokestop_name'));
                 exit();
             }
-            if(!isset($_POST['research'])) {
-                echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: research'));
+            if(!isset($_POST['aliases'])) {
+                echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: aliases'));
                 exit();
             }
-            if(!isset($_POST['reward'])) {
-                echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: reward'));
+            if(!isset($_POST['type'])) {
+                echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: type'));
                 exit();
             }
             $pokestop_name = $_POST['pokestop_name'];
-            $research = ($_POST['research'] !== '') ? $_POST['research'] : null;
-            $reward = ($_POST['reward'] !== '') ? $_POST['reward'] : null;
+            $aliases = ($_POST['aliases'] !== '') ? $_POST['aliases'] : null;
+            $type = $_POST['type'];
+            if ($type !== 'p' && $type !== 'g') {
+                echo json_encode(array('status' => 0, 'message' => 'Tipo não reconhecido. Deve ser p ou g '));
+                exit();
+            }
 
+            if(!isset($_SESSION['email'])) {
+                echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: email'));
+                exit();
+            }
+            $userMail = $_SESSION['email'];
 
-            echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $_POST));
+            $statement = $mysqli->prepare("Select id from usuario where email = ?");
+            $statement->bind_param('s', $userMail);
+            $result = $statement->execute();
+
+            if(!$result) {
+                echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));
+                exit();
+            }
+
+            $result = $statement->get_result();
+            $row = $result->fetch_array(MYSQLI_ASSOC);
+            $userId = $row['id'];
+
+            $statement = $mysqli->prepare("Insert into pokestop_gym (nome, apelidos, tipo, criador_id) values (?, ?, ?, ?)");
+            $statement->bind_param('sssi', $pokestop_name, $aliases, $type, $userId);
+            $result = $statement->execute();
+
+            if(!$result) {
+                echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));
+                exit();
+            }
+
+            echo json_encode(array('status' => 1, 'message' => 'Sucesso. Daqui a algum tempo o pokestop/ginásio poderá aparecer na listagem'));
             break;
 
         //    _    ___ ___ _____   ___  ___  _  _____ ___ _____ ___  ___  ___   _____   __  _  _   _   __  __ ___
