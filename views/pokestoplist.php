@@ -69,13 +69,13 @@ $user = isset($_SESSION['email']);
         $('#link_pokestoplist').addClass('focus-bg');
 
         $.post( "/pogo/php_posts/post_pokestop.php", {
-            operation: 'list_pokestops_by_name'
+            operation: 'list_pokestops_and_gyms_by_name'
         })
         .done(function(data) {
             console.log(data);
             if(data['status'] == 1) {
                 var html = '';
-                for(let row of data['data']) {
+                for(let row of data['data']['pokestops']) {
                     html += getPokestopElement(row);
                 }
                 $('#pokestop_list').append(html);
@@ -90,9 +90,14 @@ $user = isset($_SESSION['email']);
     });
 
     function getPokestopElement(el) {
+        let icon = 'fas fa-map-pin';
+        if(el['tipo'] === 'g') {
+            icon = 'fas fa-shield-alt';
+        }
+
         let html = '<div class="w3-container">' +
-            '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-map-pin"></i></div>' +
-            '<div class="w3-rest">' + el + '</div>' +
+            '<div class="w3-col w3-center icon-fix-width"><i class="' + icon + '"></i></div>' +
+            '<div class="w3-rest">' + el['nome'] + '</div>' +
             '</div>' +
             '<hr>';
         return html;

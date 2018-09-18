@@ -51,6 +51,8 @@
                 $('#new_research_modal').hide();
                 $('#pokestop_name').val('');
                 $('#aliases').val('');
+
+                $('#new_pokestop_gym_modal').hide();
             }
             else {
                 toastr['error'](data['message']);

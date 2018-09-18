@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 from
                     pokestop_gym pg
                 where
-                    pg.tipo = 'P'
+                    pg.tipo = 'p'
                     and pg.status = 1
                 order by pg.nome ASC
             ";
@@ -110,6 +110,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 echo json_encode(array('status' => 1, 'data' => $pokestops));
+            }
+            else {
+                echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));
+                exit();
+            }
+            break;
+
+        //    _    ___ ___ _____   ___  ___  _  _____ ___ _____ ___  ___  ___     _   _  _ ___     _____   ____  __ ___   _____   __  _  _   _   __  __ ___
+        //   | |  |_ _/ __|_   _| | _ \/ _ \| |/ / __/ __|_   _/ _ \| _ \/ __|   /_\ | \| |   \   / __\ \ / /  \/  / __| | _ ) \ / / | \| | /_\ |  \/  | __|
+        //   | |__ | |\__ \ | |   |  _/ (_) | ' <| _|\__ \ | || (_) |  _/\__ \  / _ \| .` | |) | | (_ |\ V /| |\/| \__ \ | _ \\ V /  | .` |/ _ \| |\/| | _|
+        //   |____|___|___/ |_|   |_|  \___/|_|\_\___|___/ |_| \___/|_|  |___/ /_/ \_\_|\_|___/   \___| |_| |_|  |_|___/ |___/ |_|   |_|\_/_/ \_\_|  |_|___|
+        //
+        case 'list_pokestops_and_gyms_by_name':
+            $query = "
+                Select
+                    CONCAT(
+                        pg.nome,
+                        COALESCE(CONCAT(' (', pg.apelidos, ')'), '')
+                    ) as nome,
+                    pg.tipo
+                from
+                    pokestop_gym pg
+                where
+                    pg.status = 1
+                order by pg.nome ASC
+            ";
+            $statement = $mysqli->prepare($query);
+            $result = $statement->execute();
+
+            if($result) {
+                $result = $statement->get_result();
+                $pokestops = array();
+                while($row = $result->fetch_array(MYSQLI_ASSOC)) {
+                    $pokestops[] = $row;
+                }
+
+                echo json_encode(array('status' => 1, 'data' => array('pokestops' => $pokestops)));
             }
             else {
                 echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));
