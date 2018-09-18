@@ -185,12 +185,17 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
             day = researchMoment;
         }
 
+        let user = 'Eu';
+
         let html =
         '<div class="w3-container w3-row w3-display-container ' + faded + ' research-container" data-id="' + research['id'] + '">';
 
         if(research['removable'] == 1) {
             html +=
                 '<span class="w3-button button-all button-tertiary w3-display-topright research-delete-button"><i class="fas fa-times"></i></span>';
+        }
+        else {
+            user = research['usuario'];
         }
         html +=
             '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-tasks"></i></div>' +
@@ -201,6 +206,9 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
 
             '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-clock"></i></div>' +
             '<div class="w3-rest">' + day + '</div>' +
+
+            '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-user"></i></div>' +
+            '<div class="w3-rest">' + user + '</div>' +
             '</div>' +
             '<hr>';
         return html;

@@ -104,6 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     END as missao,
                     (100.0 / (TIMESTAMPDIFF(SECOND, im.criado_em, NOW()) + 1)) * COALESCE(u.prioridade, 1) as prior,
                     DATE(im.criado_em) as dia,
+                    u.nick_jogo as usuario,
                     CASE WHEN u.email = ? THEN 1 ELSE 0 END as removable
                 from
                     informe_missao im
