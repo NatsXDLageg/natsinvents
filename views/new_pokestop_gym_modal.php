@@ -18,11 +18,13 @@
                 <input type="radio" id="type_gym" name="type" value="g" class="w3-radio"/><label for="type_gym"> Ginásio</label>
             </div>
 
-            <div class="w3-col w3-half duo_button_left">
-                <input type="button" id="new_pokestop_gym_confirm" class="w3-button button-all button-main" value="CONFIRMAR" style="width: 100%"/>
-            </div>
-            <div class="w3-col w3-half duo_button_right">
-                <input type="button" id="new_pokestop_gym_cancel" class="w3-button button-all button-secondary" value="CANCELAR" style="width: 100%" onclick="document.getElementById('new_pokestop_gym_modal').style.display='none'"/>
+            <div class="duo_button_div">
+                <div class="duo_button_left">
+                    <input type="button" id="new_pokestop_gym_confirm" class="w3-button button-all button-main" value="CONFIRMAR" style="width: 100%"/>
+                </div>
+                <div class="duo_button_right">
+                    <input type="button" id="new_pokestop_gym_cancel" class="w3-button button-all button-secondary" value="CANCELAR" style="width: 100%" onclick="document.getElementById('new_pokestop_gym_modal').style.display='none'"/>
+                </div>
             </div>
         </div>
     </div>

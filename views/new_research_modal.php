@@ -19,11 +19,13 @@
             <label for="reward">Recompensa:</label>
             <input type="text" id="reward" name="reward" class="w3-input full-width w3-margin-bottom" maxlength="200"/>
 
-            <div class="w3-col w3-half duo_button_left">
-                <input type="button" id="research_confirm" class="w3-button button-all button-main" value="CONFIRMAR" style="width: 100%"/>
-            </div>
-            <div class="w3-col w3-half duo_button_right">
-                <input type="button" id="research_cancel" class="w3-button button-all button-secondary" value="CANCELAR" style="width: 100%" onclick="document.getElementById('new_research_modal').style.display='none'"/>
+            <div class="duo_button_div">
+                <div class="duo_button_left">
+                    <input type="button" id="research_cancel" class="w3-button button-all button-secondary" value="CANCELAR" style="width: 100%" onclick="document.getElementById('new_research_modal').style.display='none'"/>
+                </div>
+                <div class="duo_button_right">
+                    <input type="button" id="research_confirm" class="w3-button button-all button-main" value="CONFIRMAR" style="width: 100%"/>
+                </div>
             </div>
         </div>
     </div>
@@ -36,6 +38,36 @@
 
     function researchModalOnLoad () {
 
+        var input = document.getElementById("pokestop_name");
+
+        input.addEventListener("keyup", function(event) {
+            if (event.keyCode === 13) {
+                if(this.value.trim() === "") {
+                    toastr['warning']("Por favor informe o pokestop");
+                    return;
+                }
+                $('#research').focus();
+            }
+            else if(event instanceof KeyboardEvent) {
+                pokestopNameInputOnKeyUpBehaviour(this.value.trim());
+            }
+        });
+
+        input = document.getElementById("research");
+
+        input.addEventListener("keyup", function(event) {
+            if (event.keyCode === 13) {
+                $('#reward').focus();
+            }
+        });
+
+        input = document.getElementById("reward");
+
+        input.addEventListener("keyup", function(event) {
+            if (event.keyCode === 13) {
+                $('#research_confirm').trigger('click');
+            }
+        });
     }
 
     function pokestopNameInputOnKeyUpBehaviour(stretch) {
@@ -76,10 +108,12 @@
         let reward = $('#reward').val().trim();
         if(pokestop_name == "") {
             toastr['warning']("Por favor informe o pokestop");
+            $('#pokestop_name').focus();
             return;
         }
         if(research == "" && reward == "") {
             toastr['warning']("Por favor informe a missão e/ou a recompensa");
+            $('#research').focus();
             return;
         }
         $(this).prop('disabled', true);

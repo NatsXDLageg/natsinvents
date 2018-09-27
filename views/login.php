@@ -58,13 +58,9 @@ if(isset($_SESSION['email']))
                         <input type="checkbox" id="remember" name="remember" class="w3-check"/>
                     </div>
                     <br/>
-                    <div class="w3-row w3-padding">
-                        <div class="w3-col w3-half duo_button_left">
-                            <input type="button" id="submit" class="w3-button button-all button-main" value="ENTRAR" style="width: 100%"/>
-                        </div>
-                        <div class="w3-col w3-half duo_button_right">
-                            <input type="button" id="register" class="w3-button button-all button-secondary" value="REGISTRAR-SE" style="width: 100%"/>
-                        </div>
+                    <div class="w3-container">
+                        <input type="button" id="submit" class="w3-button button-all button-main full-width" value="ENTRAR"/>
+                        <input type="button" id="register" class="w3-button button-all button-tertiary" value="REGISTRAR-SE" style="margin-top: 16px;"/>
                     </div>
                 </form>
             </div>
@@ -90,7 +86,7 @@ if(isset($_SESSION['email']))
             })
             .done(function (data) {
                 if (data['status'] == 1) {
-                    window.location.replace('/pogo/');
+                    window.location.href = '/pogo/';
                 }
                 else {
                     console.log(data);
@@ -101,7 +97,7 @@ if(isset($_SESSION['email']))
 
         $('#register').on('click', function() {
             sessionStorage.email = encodeURI($('input[name=email').val().trim());
-            window.location.replace('/pogo/views/register.php');
+            window.location.href = '/pogo/views/register.php';
         });
 
         $(document).ready(function() {

@@ -92,33 +92,6 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
         <?php if($user) { ?>
 
             researchModalOnLoad();
-
-            var input = document.getElementById("pokestop_name");
-
-            input.addEventListener("keyup", function(event) {
-                if (event.keyCode === 13) {
-                    $('#research_confirm').trigger('click');
-                }
-                else if(event instanceof KeyboardEvent) {
-                    pokestopNameInputOnKeyUpBehaviour(this.value.trim());
-                }
-            });
-
-            input = document.getElementById("research");
-
-            input.addEventListener("keyup", function(event) {
-                if (event.keyCode === 13) {
-                    $('#research_confirm').trigger('click');
-                }
-            });
-
-            input = document.getElementById("reward");
-
-            input.addEventListener("keyup", function(event) {
-                if (event.keyCode === 13) {
-                    $('#research_confirm').trigger('click');
-                }
-            });
         <?php } ?>
 
         loadResearches();
