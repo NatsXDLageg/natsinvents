@@ -7,7 +7,9 @@
             <h2>Informar Missão</h2>
 
             <label for="pokestop_name">Pokestop:</label>
-            <input type="text" id="pokestop_name" name="pokestop_name" class="w3-input full-width w3-margin-bottom" maxlength="360"/>
+            <input type="text" id="pokestop_name" name="pokestop_name" class="w3-input full-width w3-margin-bottom" list="ps_name_list" maxlength="360"/>
+            <datalist id="ps_name_list">
+            </datalist>
 
             <label for="research">Missão:</label>
             <input type="text" id="research" name="research" class="w3-input full-width w3-margin-bottom" maxlength="200"/>
@@ -28,6 +30,46 @@
 </div>
 
 <script>
+    var autocompleteTimeout = null;
+    var timeForAutoComplete = 500;
+    var lastPSnameInput = "";
+
+    function researchModalOnLoad () {
+
+    }
+
+    function pokestopNameInputOnKeyUpBehaviour(stretch) {
+
+        if(autocompleteTimeout != null) {
+            clearTimeout(autocompleteTimeout);
+        }
+
+        if(stretch.length < 2 || stretch === lastPSnameInput) {
+            return;
+        }
+
+        autocompleteTimeout = setTimeout(function() {
+            lastPSnameInput = stretch;
+            $.post("/pogo/php_posts/post_pokestop.php", {
+                operation: 'list_pokestops_by_stretch',
+                stretch: stretch,
+                totalResults: 6
+            })
+            .done(function (data) {
+                if(data['status'] == 1) {
+                    let html = "";
+                    for(let row of data['data']) {
+                        html += "<option>" + row + "</option>"
+                    }
+                    $('#ps_name_list').html(html);
+                }
+                else {
+                    toastr['error']('Ocorreu um erro: ' + data['message'] + ' (' + data['status'] + ')');
+                }
+            });
+        }, timeForAutoComplete);
+    }
+
     $('#research_confirm').on('click', function() {
         let pokestop_name = $('#pokestop_name').val().trim();
         let research = $('#research').val().trim();

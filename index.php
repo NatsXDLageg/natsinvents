@@ -35,7 +35,7 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
     $jquery = true;
     $fontAwesome = true;
     $toastr = true;
-    $awesomplete = true;
+    $awesomplete = false;
     $iconSelect = false;
     $moment = true;
     $html2canvas = false;
@@ -83,7 +83,6 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
 </body>
 
 <script>
-    var awesomplete;
     var research_index = 0;
 
     $(document).ready(function() {
@@ -91,27 +90,17 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
         moment.locale('pt-br');
 
         <?php if($user) { ?>
-            var pokestop_name_input = document.getElementById("pokestop_name");
-            awesomplete = new Awesomplete(pokestop_name_input);
-            awesomplete.list = [];
 
-            $.post( "/pogo/php_posts/post_pokestop.php", {
-                operation: 'list_pokestops_by_name'
-            })
-            .done(function(data) {
-                if(data['status'] == 1) {
-                    awesomplete.list = data['data'];
-                }
-                else {
-                    toastr['error']('Ocorreu um erro: ' + data['message'] + ' (' + data['status'] + ')');
-                }
-            });
+            researchModalOnLoad();
 
             var input = document.getElementById("pokestop_name");
 
             input.addEventListener("keyup", function(event) {
                 if (event.keyCode === 13) {
                     $('#research_confirm').trigger('click');
+                }
+                else if(event instanceof KeyboardEvent) {
+                    pokestopNameInputOnKeyUpBehaviour(this.value.trim());
                 }
             });
 

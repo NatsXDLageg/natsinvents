@@ -55,6 +55,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $userMail = $_SESSION['email'];
 
+            $status = 0;
+            if (isset($_SESSION['priority']) && $_SESSION['priority'] === 999) {
+                $status = 1;
+            }
+
             $statement = $mysqli->prepare("Select id from usuario where email = ?");
             $statement->bind_param('s', $userMail);
             $result = $statement->execute();
@@ -68,8 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $row = $result->fetch_array(MYSQLI_ASSOC);
             $userId = $row['id'];
 
-            $statement = $mysqli->prepare("Insert into pokestop_gym (nome, apelidos, tipo, criador_id) values (?, ?, ?, ?)");
-            $statement->bind_param('sssi', $pokestop_name, $aliases, $type, $userId);
+            $statement = $mysqli->prepare("Insert into pokestop_gym (nome, apelidos, tipo, criador_id, status) values (?, ?, ?, ?, ?)");
+            $statement->bind_param('sssii', $pokestop_name, $aliases, $type, $userId, $status);
             $result = $statement->execute();
 
             if(!$result) {
@@ -152,6 +157,97 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));
                 exit();
             }
+            break;
+
+        //    _    ___ ___ _____   ___  ___  _  _____ ___ _____ ___  ___  ___   _____   __  ___ _____ ___ ___ _____ ___ _  _
+        //   | |  |_ _/ __|_   _| | _ \/ _ \| |/ / __/ __|_   _/ _ \| _ \/ __| | _ ) \ / / / __|_   _| _ \ __|_   _/ __| || |
+        //   | |__ | |\__ \ | |   |  _/ (_) | ' <| _|\__ \ | || (_) |  _/\__ \ | _ \\ V /  \__ \ | | |   / _|  | || (__| __ |
+        //   |____|___|___/ |_|   |_|  \___/|_|\_\___|___/ |_| \___/|_|  |___/ |___/ |_|   |___/ |_| |_|_\___| |_| \___|_||_|
+        //
+        case 'list_pokestops_by_stretch':
+            if(!isset($_POST['stretch'])) {
+                echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: stretch'));
+                exit();
+            }
+            $resultsRemaining = 20;
+            if(isset($_POST['totalResults'])) {
+                $resultsRemaining = intval($_POST['totalResults']);
+            }
+
+            $pokestops = array();
+            $queryByName = "
+                Select
+                    CONCAT(
+                        pg.nome,
+                        COALESCE(CONCAT(' (', pg.apelidos, ')'), '')
+                    ) as nome
+                from
+                    pokestop_gym pg
+                where
+                    pg.tipo = 'p'
+                    and pg.status = 1
+                    and pg.nome like ?
+                order by pg.nome ASC
+                limit ?
+            ";
+            $queryByNickname = "
+                Select
+                    CONCAT(
+                        pg.nome,
+                        COALESCE(CONCAT(' (', pg.apelidos, ')'), '')
+                    ) as nome
+                from
+                    pokestop_gym pg
+                where
+                    pg.tipo = 'p'
+                    and pg.status = 1
+                    and pg.apelidos like ?
+                order by pg.apelidos ASC
+                limit ?
+            ";
+
+            // Search first for pokestops with $stretch in its names
+            $stretch = '%'.$_POST['stretch'].'%';
+
+            $statement = $mysqli->prepare($queryByName);
+            $statement->bind_param('si', $stretch, $resultsRemaining);
+            $result = $statement->execute();
+
+            if($result) {
+                $result = $statement->get_result();
+                $resultsRemaining -= $result->num_rows;
+
+                while($row = $result->fetch_array(MYSQLI_ASSOC)) {
+                    $pokestops[] = $row['nome'];
+                }
+            }
+            else {
+                echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));
+                exit();
+            }
+
+            if($resultsRemaining > 0) {
+                // Search for pokestops with $stretch in its nicknames
+
+                $statement = $mysqli->prepare($queryByNickname);
+                $statement->bind_param('si', $stretch, $resultsRemaining);
+                $result = $statement->execute();
+
+                if ($result) {
+                    $result = $statement->get_result();
+                    $resultsRemaining -= $result->num_rows;
+
+                    while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+                        $pokestops[] = $row['nome'];
+                    }
+                }
+                else {
+                    echo json_encode(array('status' => 0, 'message' => 'Erro de SQL', 'debug' => $statement->error));
+                    exit();
+                }
+            }
+
+            echo json_encode(array('status' => 1, 'data' => $pokestops));
             break;
         default:
             header("Location:/pogo/views/error.php");
