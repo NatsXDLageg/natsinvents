@@ -35,10 +35,8 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
     $jquery = true;
     $fontAwesome = true;
     $toastr = true;
-    $awesomplete = false;
-    $iconSelect = false;
     $moment = true;
-    $html2canvas = false;
+    $leaflet = true;
     include($pogo_path."/resources/php_components/import_js_css.php");
     ?>
     <title>Nats Invents - Início</title>
@@ -50,6 +48,27 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
         textarea {
             resize: vertical;
         }
+        #map-crosshair {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 900;
+            background-color: white;
+            border-radius: 4px;
+            border-color: rgba(0, 0, 0, 0.2);
+            font-size: 22px;
+            cursor: pointer;
+            padding: 0;
+            height: 34px;
+            width: 34px;
+        }
+        #map-crosshair:hover {
+            background-color: #f4f4f4;
+        }
+        #map-crosshair:disabled {
+            background-color: #f4f4f4;
+            color: #bbb;
+        }
     </style>
 </head>
 <body>
@@ -59,9 +78,23 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
             <div id="research_div" class="w3-col w3-half w3-mobile">
                 <h2>Missões</h2>
                 <?php if($user) { ?>
-                    <button class="w3-button button-all button-main full-width" onclick="document.getElementById('new_research_modal').style.display='block'"><i class="fas fa-plus"></i> INFORMAR MISSÃO</button>
+                    <div class="duo_button_div">
+                        <div class="duo_button_left">
+                            <button class="w3-button button-all button-secondary full-width" onclick="openResearchModal()"><i class="fas fa-plus"></i><span class="w3-hide-small"> INFORMAR MISSÃO</span></button>
+                        </div>
+                        <div class="duo_button_right">
+                            <button class="w3-button button-all button-main full-width" onclick="openMapModal()"><i class="fas fa-map-marked-alt"></i> INFORMAR NO MAPA</button>
+                        </div>
+                    </div>
                 <?php } else { ?>
-                    <button class="w3-button button-all button-main full-width" onclick="window.location.replace('/pogo/views/login.php')"><i class="fas fa-plus"></i> INFORMAR MISSÃO</button>
+                    <div class="duo_button_div">
+                        <div class="duo_button_left">
+                            <button class="w3-button button-all button-secondary full-width" onclick="window.location.href = '/pogo/views/login.php'"><i class="fas fa-plus"></i><span class="w3-hide-small"> INFORMAR MISSÃO</span></button>
+                        </div>
+                        <div class="duo_button_right">
+                            <button class="w3-button button-all button-main full-width" onclick="window.location.href = '/pogo/views/login.php'"><i class="fas fa-map-marked-alt"></i> INFORMAR NO MAPA</button>
+                        </div>
+                    </div>
                 <?php } ?>
                 <div id="loading_reasearch" class="w3-container w3-padding w3-center">
                     <i class="fas fa-spinner fa-spin"></i>
@@ -74,9 +107,10 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
         </div>
     <?php
         if($user) {
-            include($pogo_path."/views/new_research_modal.php");
+            include($pogo_path."/views/modals/new_research_modal.php");
+            include($pogo_path."/views/modals/new_research_map_modal.php");
         }
-        include($pogo_path."/views/confirm_modal.php");
+        include($pogo_path."/views/modals/confirm_modal.php");
     ?>
 
     <?php include($pogo_path."/resources/php_components/main_bottom_footer.php"); ?>
@@ -90,8 +124,8 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
         moment.locale('pt-br');
 
         <?php if($user) { ?>
-
             researchModalOnLoad();
+            researchMapModalOnLoad();
         <?php } ?>
 
         loadResearches();
@@ -109,7 +143,6 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
             index: research_index
         })
         .done(function(data) {
-            console.log(data);
             if(data['status'] == 1) {
                 let loaded = parseInt(data['data']['loaded']);
                 if(loaded == 0) {
@@ -149,6 +182,10 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
 
         let user = 'Eu';
 
+        // url com coordenadas: "http://maps.apple.com/?q=-15.623037,18.388672";
+        let mapsUrl = "http://maps.apple.com/?q=";
+        let mapsLabel = 'Abrir localização';
+
         let html =
         '<div class="w3-container w3-row w3-display-container ' + faded + ' research-container" data-id="' + research['id'] + '">';
 
@@ -159,13 +196,23 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
         else {
             user = research['usuario'];
         }
+
         html +=
             '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-tasks"></i></div>' +
-            '<div class="w3-rest"><strong>' + research['missao'] + '</strong></div>' +
+            '<div class="w3-rest"><strong>' + research['missao'] + '</strong></div>';
 
-            '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-map-pin"></i></div>' +
-            '<div class="w3-rest">' + research['pokestop'] + '</div>' +
+        if(research['coordenadas'] !== null) {
+            html +=
+                '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-map-pin"></i></div>' +
+                '<div class="w3-rest"><a href="' + mapsUrl + research['coordenadas'] + '" target="_blank">' + mapsLabel + '</a></div>';
+        }
+        else {
+            html +=
+                '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-map-pin"></i></div>' +
+                '<div class="w3-rest">' + research['pokestop'] + '</div>';
+        }
 
+        html +=
             '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-clock"></i></div>' +
             '<div class="w3-rest">' + day + '</div>' +
 

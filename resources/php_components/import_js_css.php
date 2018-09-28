@@ -27,6 +27,10 @@ if(isset($awesomplete) && $awesomplete == true) {
 if(isset($iconSelect) && $iconSelect == true) {
     echo '<link rel="stylesheet" type="text/css" href="/pogo/resources/css/iconselect.css" >';
 }
+if(isset($leaflet) && $leaflet == true) {
+    echo '<link rel="stylesheet" type="text/css" href="/pogo/resources/css/leaflet.css" >';
+}
+
 
 //       _ ___
 //    _ | / __|
@@ -51,4 +55,7 @@ if(isset($moment) && $moment == true) {
 }
 if(isset($html2canvas) && $html2canvas == true) {
     echo '<script type="text/javascript" src="/pogo/resources/js/html2canvas.js"></script>';
+}
+if(isset($leaflet) && $leaflet == true) {
+    echo '<script type="text/javascript" src="/pogo/resources/js/leaflet.js"></script>';
 }

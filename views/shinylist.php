@@ -24,10 +24,6 @@ if(!isset($check_login)) {
     $jquery = true;
     $fontAwesome = true;
     $toastr = true;
-    $awesomplete = false;
-    $iconSelect = false;
-    $moment = false;
-    $html2canvas = false;
     include($pogo_path."/resources/php_components/import_js_css.php");
     ?>
     <title>Shiny List</title>
@@ -87,7 +83,6 @@ if(!isset($check_login)) {
             get_user_list: 'true'
         })
         .done(function(data) {
-            console.log(data);
             if(data['status'] == 1) {
                 var html = '';
                 for(let row of data['shinies']) {
@@ -142,7 +137,6 @@ if(!isset($check_login)) {
             'listhasnt[]': has_not_list
         })
         .done(function(data) {
-            console.log(data);
             if(data['status'] == 1) {
                 toastr['success']('Lista atualizada!');
             }

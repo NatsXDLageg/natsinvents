@@ -25,10 +25,6 @@ $user = isset($_SESSION['email']);
     $jquery = true;
     $fontAwesome = true;
     $toastr = true;
-    $awesomplete = false;
-    $iconSelect = false;
-    $moment = false;
-    $html2canvas = false;
     include($pogo_path."/resources/php_components/import_js_css.php");
     ?>
     <title>Pokestop List</title>
@@ -55,9 +51,9 @@ $user = isset($_SESSION['email']);
 
     <?php
     if($user) {
-        include($pogo_path."/views/new_pokestop_gym_modal.php");
+        include($pogo_path."/views/modals/new_pokestop_gym_modal.php");
     }
-    include($pogo_path."/views/confirm_modal.php");
+    include($pogo_path."/views/modals/confirm_modal.php");
     ?>
 
     <?php include($pogo_path."/resources/php_components/main_bottom_footer.php"); ?>
@@ -72,7 +68,6 @@ $user = isset($_SESSION['email']);
             operation: 'list_pokestops_and_gyms_by_name'
         })
         .done(function(data) {
-            console.log(data);
             if(data['status'] == 1) {
                 var html = '';
                 for(let row of data['data']['pokestops']) {

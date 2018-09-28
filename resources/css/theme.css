@@ -149,11 +149,11 @@ body {
 }
 .duo_button_left {
     padding-right: 5px;
-    flex: 0 0 50%;
+    flex: 1;
 }
 .duo_button_right {
     padding-left: 5px;
-    flex: 1;
+    flex: 0 0 50%;
 }
 
 .full-width {
@@ -200,6 +200,9 @@ body {
     .input-center {
         width: 100%;
     }
+    .app-map{
+        height: 250px;
+    }
 }
 /*    __  __  ___  ___   _   _      _      _   ___  ___ ___    ___  ___   _      _   ___  ___ ___ ___
 //   |  \/  |/ _ \|   \ /_\ | |    | |    /_\ | _ \/ __| __|  / _ \| _ \ | |    /_\ | _ \/ __| __| _ \
@@ -209,6 +212,9 @@ body {
 @media only screen and (min-width:768px ) {
     .input-center {
         width: 350px;
+    }
+    .app-map{
+        height: 300px;
     }
 }
 

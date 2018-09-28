@@ -28,8 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //   |_|\_|___| \_/\_/   |_|_\___|___/___/_/ \_\_|_\\___|_||_|
         //
         case 'new_research':
-            if(!isset($_POST['pokestop_name'])) {
-                echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: pokestop_name'));
+            if(!isset($_POST['pokestop_name']) && !isset($_POST['pokestop_coordinates'])) {
+                echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: pokestop_name ou pokestop_coordinates'));
                 exit();
             }
             if(!isset($_POST['research'])) {
@@ -40,7 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode(array('status' => 0, 'message' => 'Parâmetro não encontrado: reward'));
                 exit();
             }
-            $pokestop_name = $_POST['pokestop_name'];
+
+            $pokestop_name = isset($_POST['pokestop_name']) ? $_POST['pokestop_name'] : null;
+            $pokestop_coordinates = isset($_POST['pokestop_coordinates']) ? $_POST['pokestop_coordinates'] : null;
             $research = ($_POST['research'] !== '') ? $_POST['research'] : null;
             $reward = ($_POST['reward'] !== '') ? $_POST['reward'] : null;
 
@@ -63,8 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $row = $result->fetch_array(MYSQLI_ASSOC);
             $userId = $row['id'];
 
-            $statement = $mysqli->prepare("Insert into informe_missao (id_usuario, pokestop_gym, descricao, recompensa) VALUES (?, ?, ?, ?);");
-            $statement->bind_param('isss', $userId, $pokestop_name, $research, $reward);
+            $statement = $mysqli->prepare("Insert into informe_missao (id_usuario, pokestop_gym, coordenadas, descricao, recompensa) VALUES (?, ?, ?, ?, ?);");
+            $statement->bind_param('issss', $userId, $pokestop_name, $pokestop_coordinates, $research, $reward);
             $result = $statement->execute();
 
             if(!$result) {
@@ -97,6 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Select
                     im.id,
                     im.pokestop_gym as pokestop,
+                    im.coordenadas,
                     CASE
                         WHEN im.descricao IS NULL THEN im.recompensa
                         WHEN im.recompensa IS NULL THEN im.descricao

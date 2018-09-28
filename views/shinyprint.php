@@ -23,9 +23,6 @@ if(!isset($check_login)) {
     $jquery = true;
     $fontAwesome = true;
     $toastr = true;
-    $awesomplete = false;
-    $iconSelect = false;
-    $moment = false;
     $html2canvas = true;
     include($pogo_path."/resources/php_components/import_js_css.php");
     ?>
@@ -91,7 +88,6 @@ if(!isset($check_login)) {
             operation: 'get_shinies_by_dex_evo_group_families'
         })
         .done(function(data) {
-            console.log(data);
             if(data['status'] == 1) {
                 var html = '';
                 for(let family of data['data']) {

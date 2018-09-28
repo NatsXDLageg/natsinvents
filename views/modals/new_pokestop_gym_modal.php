@@ -47,7 +47,6 @@
             type: type
         })
         .done(function (data) {
-            console.log(data);
             if (data['status'] == 1) {
                 toastr['success'](data['message']);
                 $('#new_research_modal').hide();

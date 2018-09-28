@@ -36,6 +36,13 @@
     var timeForAutoComplete = 500;
     var lastPSnameInput = "";
 
+    function openResearchModal() {
+
+        let modal = document.getElementById('new_research_modal');
+        modal.style.display='block';
+        modal.focus();
+    }
+
     function researchModalOnLoad () {
 
         var input = document.getElementById("pokestop_name");
@@ -124,7 +131,6 @@
             reward: reward
         })
         .done(function (data) {
-            console.log(data);
             if (data['status'] == 1) {
                 toastr['success'](data['message']);
                 $('#new_research_modal').hide();
@@ -174,7 +180,6 @@
 
             let research_div = $(this).closest('.research-container');
             $('#confirm_yes').off().on('click', function() {
-                console.log(research_div);
                 deleteResearch(research_div);
             });
             $('#confirm_title').text('Deseja mesmo remover o informe de missão?');
@@ -189,7 +194,6 @@
             research: research_id
         })
         .done(function(data) {
-            console.log(data);
             if(data['status'] == 1) {
                 research_div.next().remove();
                 research_div.remove();

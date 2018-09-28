@@ -24,10 +24,6 @@ if(!isset($check_login_admin)) {
     $jquery = true;
     $fontAwesome = true;
     $toastr = true;
-    $awesomplete = false;
-    $iconSelect = false;
-    $moment = false;
-    $html2canvas = false;
     include($pogo_path."/resources/php_components/import_js_css.php");
     ?>
     <title>Shiny List - Admin</title>
@@ -142,7 +138,6 @@ if(!isset($check_login_admin)) {
                         pokemon: $(this).attr('data-id')
                     })
                     .done(function (data) {
-                        console.log(data);
                         if (data['status'] == 1) {
                             toastr['success'](data['message']);
                             parent_element.remove();
@@ -197,7 +192,6 @@ if(!isset($check_login_admin)) {
             link: link
         })
         .done(function (data) {
-            console.log(data);
             if (data['status'] == 1) {
                 toastr['success'](data['message']);
                 setTimeout(function() {
