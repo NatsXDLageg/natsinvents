@@ -69,6 +69,25 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
             background-color: #f4f4f4;
             color: #bbb;
         }
+        #search_div {
+            margin-top: 16px;
+        }
+        #search_input {
+            display: inline-block;
+            width: calc(100% - 36px) !important;
+            vertical-align: top;
+        }
+        #search_icon_button {
+            display: inline-block;
+            height: 39px;
+            width: 36px;
+            vertical-align: top;
+            padding: 8px !important;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 20px;
+        }
     </style>
 </head>
 <body>
@@ -96,6 +115,14 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
                         </div>
                     </div>
                 <?php } ?>
+                <div id="search_div">
+                    <button id="search_icon_button" class="w3-button button-all button-secondary">
+                        <i class="fas fa-search" style="margin: 0;"></i>
+                    </button><input id="search_input" type="text" class="w3-input" placeholder="Pesquisar"/>
+                </div>
+                <div id="no_match_filter" class="w3-container theme-text-secondary" style="display: none;">
+                    <p>Nenhuma missão encontrada para essa pesquisa</p>
+                </div>
                 <div id="loading_reasearch" class="w3-container w3-padding w3-center">
                     <i class="fas fa-spinner fa-spin"></i>
                 </div>
@@ -135,6 +162,47 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
         loadResearches();
     });
 
+    $('#search_icon_button').on('click', function() {
+        $('#search_input').focus();
+    });
+    $('#search_input').on('keyup', function() {
+        filter($(this).val().trim().toLowerCase());
+    });
+
+    function filter(value) {
+        let containers = $('.research-container');
+
+        if(value === '') {
+            containers.show();
+            containers.next().show();
+            return;
+        }
+
+        containers.hide();
+        containers.next().hide();
+
+        let searchables = $('.searchable');
+        let matches = 0;
+        for(let i = 0; i < searchables.length; i++) {
+            let searchable = searchables.eq(i);
+
+            if(searchable.text().toLowerCase().indexOf(value) >= 0) {
+                let searchable_parent = searchable.closest('.research-container');
+
+                searchable_parent.show();
+                searchable_parent.next().show();
+                matches++;
+            }
+        }
+
+        if(matches === 0) {
+            $('#no_match_filter').show();
+        }
+        else {
+            $('#no_match_filter').hide();
+        }
+    }
+
     function loadResearches() {
         $('#loading_reasearch').show();
         $('#load_more_researches').hide();
@@ -159,6 +227,8 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
                 <?php if($user) { ?>
                     bindDeleteResearchButtonAction();
                 <?php } ?>
+
+                $('#search_input').trigger('keyup');
             }
             else {
                 toastr['error']('Ocorreu um erro: ' + data['message'] + ' (' + data['status'] + ')');
@@ -199,9 +269,9 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
 
         html +=
             '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-tasks"></i></div>' +
-            '<div class="w3-rest"><strong>' + research['missao'] + '</strong></div>';
+            '<div class="w3-rest"><strong class="searchable">' + research['missao'] + '</strong></div>';
 
-        if(research['coordenadas'] !== null) {
+        if(typeof research['coordenadas'] !== 'undefined' && research['coordenadas'] !== null) {
             html +=
                 '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-map-pin"></i></div>' +
                 '<div class="w3-rest"><a href="' + mapsUrl + research['coordenadas'] + '" target="_blank">' + mapsLabel + '</a></div>';
@@ -209,15 +279,15 @@ $admin = isset($_SESSION['priority']) && ($_SESSION['priority'] === 999);
         else {
             html +=
                 '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-map-pin"></i></div>' +
-                '<div class="w3-rest">' + research['pokestop'] + '</div>';
+                '<div class="w3-rest searchable">' + research['pokestop'] + '</div>';
         }
 
         html +=
             '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-clock"></i></div>' +
-            '<div class="w3-rest">' + day + '</div>' +
+            '<div class="w3-rest searchable">' + day + '</div>' +
 
             '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-user"></i></div>' +
-            '<div class="w3-rest">' + user + '</div>' +
+            '<div class="w3-rest searchable">' + user + '</div>' +
             '</div>' +
             '<hr>';
         return html;

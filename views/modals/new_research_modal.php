@@ -40,7 +40,8 @@
 
         let modal = document.getElementById('new_research_modal');
         modal.style.display='block';
-        modal.focus();
+
+        $('#pokestop_name').focus();
     }
 
     function researchModalOnLoad () {
@@ -103,6 +104,7 @@
                     $('#ps_name_list').html(html);
                 }
                 else {
+                    console.log(data);
                     toastr['error']('Ocorreu um erro: ' + data['message'] + ' (' + data['status'] + ')');
                 }
             });
