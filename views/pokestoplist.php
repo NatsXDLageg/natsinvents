@@ -41,7 +41,7 @@ $user = isset($_SESSION['email']);
             <?php if($user) { ?>
                 <button class="w3-button button-all button-main full-width" onclick="document.getElementById('new_pokestop_gym_modal').style.display='block'">
             <?php } else { ?>
-                <button class="w3-button button-all button-main full-width" onclick="window.location.replace('/pogo/views/login.php')">
+                <button class="w3-button button-all button-main full-width" onclick="window.location.href = '/pogo/views/login.php'">
             <?php } ?>
             <i class="fas fa-plus"></i> SUGERIR NOVO</button>
         </div>

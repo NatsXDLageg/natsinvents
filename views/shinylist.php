@@ -74,6 +74,8 @@ if(!isset($check_login)) {
 </body>
 
 <script>
+    var imagesToLoadIdList = [];
+    var imagesToLoadIndex = 0;
 
     $(document).ready(function() {
         $('#link_shinylist').addClass('focus-bg');
@@ -90,10 +92,10 @@ if(!isset($check_login)) {
                     if(row['marked'] == 1) {
                         marked = ' marked';
                     }
-                    html += '<div class="w3-col s4 m3 l2 w3-center shiny-pokemon'+marked+'" data-id="'+row['id']+'">' +
-                        '       <img src="/pogo/resources/images/pokemon/shiny/' + row['id'] + '.png" width="100%" onerror="this.src=\'/pogo/resources/images/pokemon/shiny/missing.png\';"/>' +
+                    html += '<div id="poke' + row['id'] + '" class="w3-col s4 m3 l2 w3-center shiny-pokemon'+marked+'" data-id="'+row['id']+'">' +
                         '       <p>' + row['nome'] + '</p>' +
                         '</div>';
+                    imagesToLoadIdList.push(row['id']);
                 }
 
                 $('#shiny_list').append(html);
@@ -106,6 +108,8 @@ if(!isset($check_login)) {
                         $(this).addClass('marked');
                     }
                 });
+
+                loadNextImage(false);
             }
             else {
                 toastr['error'](data['message']);
@@ -148,5 +152,21 @@ if(!isset($check_login)) {
             toastr['error']('Ocorreu um erro');
         });
     });
+
+    function loadNextImage(success) {
+        if(success) {
+            imagesToLoadIndex++;
+        }
+        if(imagesToLoadIndex === imagesToLoadIdList.length) {
+            return;
+        }
+        let pokeNumber = imagesToLoadIdList[imagesToLoadIndex];
+
+        // let html = '<img class="img-shiny" src="/pogo/resources/images/pokemon/shiny/' + row['id'] + '.png" width="100%" onload="loadNextImage(false);" onerror="this.src=\'/pogo/resources/images/pokemon/shiny/missing.png\';"/>';
+        let html = '<img class="img-shiny" src="/pogo/resources/images/pokemon/shiny/' + pokeNumber + '.png" width="100%" onload="loadNextImage(true);" onerror="loadNextImage(false);"/>';
+
+        $('#poke' + pokeNumber + ' .img-shiny').remove();
+        $('#poke' + pokeNumber).prepend(html);
+    }
 </script>
 </html>
