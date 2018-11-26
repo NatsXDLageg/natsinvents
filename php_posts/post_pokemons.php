@@ -87,12 +87,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         left join usuario_has_pokemon uhp on uhp.id_pokemon = p.id and uhp.id_usuario = ?
                     where
                         p.hasshiny = 1
-                    order by pokedexevo";
+                    order by p.pokedexevo, p.pokedex, p.id";
                 $statement = $mysqli->prepare($query);
                 $statement->bind_param('i', $userId);
             }
             else {
-                $query = "Select id, nome, 0 as 'marked' from pokemon where hasshiny = 1 order by pokedexevo";
+                $query = "Select id, nome, 0 as 'marked' from pokemon where hasshiny = 1 order by pokedexevo, pokedex, id";
                 $statement = $mysqli->prepare($query);
             }
             $result = $statement->execute();
@@ -146,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     where
                         p.hasshiny = 1
                         and p.evolve is null
-                    order by pokedexevo";
+                    order by p.pokedexevo, p.pokedex, p.id";
             $statement = $mysqli->prepare($query);
             $statement->bind_param('i', $userId);
             $result = $statement->execute();
