@@ -71,7 +71,7 @@ if(!isset($check_login)) {
 </head>
 <body>
     <div class="w3-container w3-padding-16">
-        <button class="w3-button button-all button-main print"><i class="fas fa-file-download" style="margin-right: 3vh;"></i>FAZER DOWNLOAD</button>
+        <button id="download_button" class="w3-button button-all button-main print" disabled><i class="fas fa-file-download" style="margin-right: 3vh;"></i>FAZER DOWNLOAD</button>
         <a id="link" class="w3-hide"></a>
     </div>
 
@@ -81,6 +81,10 @@ if(!isset($check_login)) {
 </body>
 
 <script>
+    var imagesToLoadList;
+    var imagesToLoadIndex = 0;
+    const maxRepeatReload = 3;
+    var link = null;
 
     $(document).ready(function() {
 
@@ -89,30 +93,32 @@ if(!isset($check_login)) {
         })
         .done(function(data) {
             if(data['status'] == 1) {
+                imagesToLoadList = data['data'];
+
                 var html = '';
                 for(let family of data['data']) {
-
                     html += '<div class="w3-center shiny_div">';
 
-                    let index = 0;
+                    let i = 0;
                     for(let row of family) {
                         let marginLeft = '';
-                        if(index > 0) {
-                            marginLeft = 'margin-left: -40px;';
+                        if(i > 0) {
+                            marginLeft = 'style="margin-left: -40px;"';
                         }
-                        html += '<img src="/pogo/resources/images/pokemon/shiny/' + row['id'] + '.png" width="100px" class="shiny_inner" style="' + marginLeft + '" onerror="this.src=\'/pogo/resources/images/pokemon/shiny/missing.png\';"/>';
+                        html += '<img id="poke' + row['id'] + '" width="100px" class="shiny_inner" ' + marginLeft + ' onload="checkAllLoaded(' + i + ');" onerror="reloadPoke(' + i + ');"/>';
 
                         if(row['marked'] == 1) {
                             let rand = Math.floor((Math.random() * 4) + 1);
                             html += '<img src="/pogo/resources/images/svg/circle' + rand + '.svg" width="100px" style="margin-left: -100px;" onerror="this.src=\'/pogo/resources/images/pokemon/shiny/missing.png\';"/>';
                         }
 
-                        index++;
+                        i++;
                     }
                     html += '</div>';
                 }
 
                 $('#shiny_list').append(html);
+                loadNextPokes();
             }
             else {
                 toastr['error']('Ocorreu um erro: ' + data['message'] + ' (' + data['status'] + ')');
@@ -124,16 +130,68 @@ if(!isset($check_login)) {
     });
 
     $('.print').on('click', function() {
+        html2canvas(document.querySelector("#shiny_list")).then(canvas => {
+            link = document.getElementById('link');
 
-        html2canvas([ document.getElementById('shiny_list') ], {
-            "onrendered": function (canvas) {
-                console.log(canvas);
-                var link = document.getElementById('link');
-                link.setAttribute('download', 'shiny_list.png');
-                link.setAttribute('href', canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"));
+            canvas.toBlob(function(blob) {
+                link.href = window.URL.createObjectURL(blob);
+                link.download = "shiny_list.png";
+                var linkText = document.createTextNode(canvas.width + "px");
+                link.appendChild(linkText);
+
                 link.click();
-            }
+            }, "image/png", 0.7);
         });
     });
+
+    //In this case, the imagesToLoadIndex should count which family is current being loaded
+    function loadNextPokes() {
+        if(imagesToLoadIndex >= imagesToLoadList.length) {
+            $('#download_button').prop('disabled', false);
+            return;
+        }
+
+        for(let i = 0; i < imagesToLoadList[imagesToLoadIndex].length; i++) {
+            let pokeNumber = imagesToLoadList[imagesToLoadIndex][i]['id'];
+
+            let src = '/pogo/resources/images/pokemon/shiny/' + pokeNumber + '.png';
+
+            let element = document.getElementById('poke' + pokeNumber);
+            element.src = src;
+        }
+    }
+
+    function checkAllLoaded(newLoadedIndex) {
+        imagesToLoadList[imagesToLoadIndex][newLoadedIndex]['loaded'] = true;
+
+        for(let i = 0; i < imagesToLoadList[imagesToLoadIndex].length; i++) {
+            if(!imagesToLoadList[imagesToLoadIndex][i]['loaded']) {
+                return false;
+            }
+        }
+
+        imagesToLoadIndex ++;
+        loadNextPokes();
+        return true;
+    }
+
+    function reloadPoke(index) {
+        let src;
+        let pokeNumber = imagesToLoadList[imagesToLoadIndex][index]['id'];
+        if(typeof imagesToLoadList[imagesToLoadIndex][index]['repeat'] === 'undefined') {
+            imagesToLoadList[imagesToLoadIndex][index]['repeat'] = 0;
+        }
+        if(imagesToLoadList[imagesToLoadIndex][index]['repeat'] == maxRepeatReload) {
+            src = '/pogo/resources/images/pokemon/shiny/missing.png';
+        }
+        else {
+            (imagesToLoadList[imagesToLoadIndex][index]['repeat'])++;
+
+            src = '/pogo/resources/images/pokemon/shiny/' + pokeNumber + '.png';
+        }
+
+        let element = document.getElementById('poke' + pokeNumber);
+        element.src = src;
+    }
 </script>
 </html>

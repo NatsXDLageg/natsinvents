@@ -74,8 +74,10 @@ if(!isset($check_login)) {
 </body>
 
 <script>
-    var imagesToLoadIdList = [];
+    var imagesToLoadList;
     var imagesToLoadIndex = 0;
+    const amountToLoadAtOnce = 10;
+    const maxRepeatReload = 3;
 
     $(document).ready(function() {
         $('#link_shinylist').addClass('focus-bg');
@@ -86,16 +88,16 @@ if(!isset($check_login)) {
         })
         .done(function(data) {
             if(data['status'] == 1) {
+                imagesToLoadList = data['shinies'];
+                console.log(imagesToLoadList);
+
                 var html = '';
                 for(let row of data['shinies']) {
                     let marked = '';
                     if(row['marked'] == 1) {
                         marked = ' marked';
                     }
-                    html += '<div id="poke' + row['id'] + '" class="w3-col s4 m3 l2 w3-center shiny-pokemon'+marked+'" data-id="'+row['id']+'">' +
-                        '       <p>' + row['nome'] + '</p>' +
-                        '</div>';
-                    imagesToLoadIdList.push(row['id']);
+                    html += '<div id="poke' + row['id'] + '" class="w3-col s4 m3 l2 w3-center shiny-pokemon'+marked+'" data-id="'+row['id']+'"></div>';
                 }
 
                 $('#shiny_list').append(html);
@@ -109,7 +111,7 @@ if(!isset($check_login)) {
                     }
                 });
 
-                loadNextImage(false);
+                loadNextPokes();
             }
             else {
                 toastr['error'](data['message']);
@@ -153,20 +155,58 @@ if(!isset($check_login)) {
         });
     });
 
-    function loadNextImage(success) {
-        if(success) {
-            imagesToLoadIndex++;
-        }
-        if(imagesToLoadIndex === imagesToLoadIdList.length) {
+    function loadNextPokes() {
+
+        if(imagesToLoadIndex >= imagesToLoadList.length) {
             return;
         }
-        let pokeNumber = imagesToLoadIdList[imagesToLoadIndex];
 
-        // let html = '<img class="img-shiny" src="/pogo/resources/images/pokemon/shiny/' + row['id'] + '.png" width="100%" onload="loadNextImage(false);" onerror="this.src=\'/pogo/resources/images/pokemon/shiny/missing.png\';"/>';
-        let html = '<img class="img-shiny" src="/pogo/resources/images/pokemon/shiny/' + pokeNumber + '.png" width="100%" onload="loadNextImage(true);" onerror="loadNextImage(false);"/>';
+        for(let i = imagesToLoadIndex; i < imagesToLoadIndex + amountToLoadAtOnce && i < imagesToLoadList.length; i++) {
+            let pokeNumber = imagesToLoadList[i]['id'];
 
-        $('#poke' + pokeNumber + ' .img-shiny').remove();
-        $('#poke' + pokeNumber).prepend(html);
+            let html = '<img class="img-shiny" src="/pogo/resources/images/pokemon/shiny/' + pokeNumber + '.png" width="100%" onload="checkAllLoaded(' + i + ');" onerror="reloadPoke(' + i + ');"/>' +
+                '<p>' + imagesToLoadList[i]['nome'] + '</p>';
+
+            $('#poke' + pokeNumber).append(html);
+        }
+    }
+
+    function checkAllLoaded(newLoadedIndex) {
+        imagesToLoadList[newLoadedIndex]['loaded'] = true;
+
+        for(let i = imagesToLoadIndex; i < imagesToLoadIndex + amountToLoadAtOnce && i < imagesToLoadList.length; i++) {
+            if(!imagesToLoadList[i]['loaded']) {
+                return false;
+            }
+        }
+
+        imagesToLoadIndex += amountToLoadAtOnce;
+        loadNextPokes();
+        return true;
+    }
+    
+    function reloadPoke(index) {
+        let html;
+        if(typeof imagesToLoadList[index]['repeat'] === 'undefined') {
+            imagesToLoadList[index]['repeat'] = 0;
+        }
+        if(imagesToLoadList[index]['repeat'] == maxRepeatReload) {
+            // let html = '<img class="img-shiny" src="/pogo/resources/images/pokemon/shiny/' + row['id'] + '.png" width="100%" onload="loadNextPokes(false);" onerror="this.src=\'/pogo/resources/images/pokemon/shiny/missing.png\';"/>';
+            html = '<img class="img-shiny" src="/pogo/resources/images/pokemon/shiny/missing.png" width="100%" onload="checkAllLoaded(' + index + ');" onerror="reloadPoke(' + index + ');"/>' +
+                '<p>' + imagesToLoadList[index]['nome'] + '</p>';
+        }
+        else {
+            (imagesToLoadList[index]['repeat'])++;
+
+            let pokeNumber = imagesToLoadList[index]['id'];
+
+            html = '<img class="img-shiny" src="/pogo/resources/images/pokemon/shiny/' + pokeNumber + '.png" width="100%" onload="checkAllLoaded(' + index + ');" onerror="reloadPoke(' + index + ');"/>' +
+                '<p>' + imagesToLoadList[index]['nome'] + '</p>';
+        }
+
+        let selector = $('#poke' + pokeNumber);
+        selector.empty();
+        selector.append(html);
     }
 </script>
 </html>
