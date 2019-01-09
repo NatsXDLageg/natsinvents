@@ -23,10 +23,7 @@ if (isset($_POST['email'])) {
         $jquery = true;
         $fontAwesome = true;
         $toastr = true;
-        $awesomplete = false;
         $iconSelect = true;
-        $moment = false;
-        $html2canvas = false;
         include($pogo_path."/resources/php_components/import_js_css.php");
         ?>
 

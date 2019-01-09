@@ -87,12 +87,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         left join usuario_has_pokemon uhp on uhp.id_pokemon = p.id and uhp.id_usuario = ?
                     where
                         p.hasshiny = 1
-                    order by pokedexevo";
+                    order by p.pokedexevo, p.pokedex, p.id";
                 $statement = $mysqli->prepare($query);
                 $statement->bind_param('i', $userId);
             }
             else {
-                $query = "Select id, nome, 0 as 'marked' from pokemon where hasshiny = 1 order by pokedexevo";
+                $query = "Select id, nome, 0 as 'marked' from pokemon where hasshiny = 1 order by pokedexevo, pokedex, id";
                 $statement = $mysqli->prepare($query);
             }
             $result = $statement->execute();
@@ -140,13 +140,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $userId = $row['id'];
 
             $query = "
-                    Select p.id, p.nome, COALESCE(uhp.has_shiny_too, 0) as 'marked', p.pokedexevo                     
+                    Select p.id, p.nome, COALESCE(uhp.has_shiny_too, 0) as 'marked', p.pokedexevo, p.alternateformname                     
                     from pokemon p
                         left join usuario_has_pokemon uhp on uhp.id_pokemon = p.id and uhp.id_usuario = ?
                     where
                         p.hasshiny = 1
                         and p.evolve is null
-                    order by pokedexevo";
+                    order by p.pokedexevo, p.pokedex, p.id";
             $statement = $mysqli->prepare($query);
             $statement->bind_param('i', $userId);
             $result = $statement->execute();
@@ -157,25 +157,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 while($row = $result->fetch_array(MYSQLI_ASSOC)) {
                     $family = array();
                     $family[] = $row;
+
+                    $alternateformname = $row['alternateformname'];
+                    $firstOfFamilyWithAlternateForm = ($alternateformname !== null);
+
                     $dexNum = intval($row['pokedexevo']) + 1;
                     $elementFound = true;
                     while ($elementFound) {
-                        $query = "
-                            Select
-                                p.id,
-                                p.pokedexevo,
-                                p.nome,
-                                COALESCE(uhp.has_shiny_too, 0) as marked
-                            from
-                                pokemon p
-                                left join usuario_has_pokemon uhp on uhp.id_pokemon = p.id and uhp.id_usuario = ?
-                            where
-                                p.evolve is not null
-                                and p.hasshiny = 1
-                                and p.pokedexevo = ?
-                        ";
-                        $statement = $mysqli->prepare($query);
-                        $statement->bind_param('ii', $userId, $dexNum);
+                        if($firstOfFamilyWithAlternateForm) {
+                            $query = "
+                                Select
+                                    p.id,
+                                    p.pokedexevo,
+                                    p.nome,
+                                    COALESCE(uhp.has_shiny_too, 0) as marked
+                                from
+                                    pokemon p
+                                    left join usuario_has_pokemon uhp on uhp.id_pokemon = p.id and uhp.id_usuario = ?
+                                where
+                                    p.evolve is not null
+                                    and p.hasshiny = 1
+                                    and p.isevolutionuniquetoalternateform = 1
+                                    and p.pokedexevo = ?
+                                    and p.alternateformname = ?
+                            ";
+
+                            $statement = $mysqli->prepare($query);
+                            $statement->bind_param('iis', $userId, $dexNum, $alternateformname);
+                        }
+                        else {
+                            $query = "
+                                Select
+                                    p.id,
+                                    p.pokedexevo,
+                                    p.nome,
+                                    COALESCE(uhp.has_shiny_too, 0) as marked
+                                from
+                                    pokemon p
+                                    left join usuario_has_pokemon uhp on uhp.id_pokemon = p.id and uhp.id_usuario = ?
+                                where
+                                    p.evolve is not null
+                                    and p.hasshiny = 1
+                                    and p.isevolutionuniquetoalternateform = 0
+                                    and p.pokedexevo = ?
+                            ";
+
+                            $statement = $mysqli->prepare($query);
+                            $statement->bind_param('ii', $userId, $dexNum);
+                        }
                         $result2 = $statement->execute();
 
                         if(!$result2) {

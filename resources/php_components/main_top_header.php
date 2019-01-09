@@ -10,6 +10,10 @@
 
 <div id="sidebar" class="w3-sidebar w3-bar-block w3-border-right theme-text" style="display: none; width: 240px;">
     <button onclick="document.getElementById('sidebar').style.display='none'" class="w3-bar-item button-all button-main w3-xlarge w3-center" style="height: 48px; cursor: pointer; margin-bottom: 8px; font-size: 18px;"><i class="fas fa-times"></i>FECHAR</button>
+    <a id="link_index" href="/pogo/index.php" class="w3-bar-item w3-button button-all button-tertiary">
+        <div class="w3-col w3-center icon-fix-width"><i class="fas fa-tasks"></i></div>
+        <div class="w3-rest">Missões</div>
+    </a>
     <a id="link_pokestoplist" href="/pogo/views/pokestoplist.php" class="w3-bar-item w3-button button-all button-tertiary">
         <div class="w3-col w3-center icon-fix-width"><i class="fas fa-map-pin"></i></div>
         <div class="w3-rest">Pokestops e Gyms</div>

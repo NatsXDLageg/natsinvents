@@ -7,7 +7,9 @@
             <h2>Informar Missão</h2>
 
             <label for="pokestop_name">Pokestop:</label>
-            <input type="text" id="pokestop_name" name="pokestop_name" class="w3-input full-width w3-margin-bottom" maxlength="360"/>
+            <input type="text" id="pokestop_name" name="pokestop_name" class="w3-input full-width w3-margin-bottom" list="ps_name_list" maxlength="360"/>
+            <datalist id="ps_name_list">
+            </datalist>
 
             <label for="research">Missão:</label>
             <input type="text" id="research" name="research" class="w3-input full-width w3-margin-bottom" maxlength="200"/>
@@ -17,27 +19,110 @@
             <label for="reward">Recompensa:</label>
             <input type="text" id="reward" name="reward" class="w3-input full-width w3-margin-bottom" maxlength="200"/>
 
-            <div class="w3-col w3-half duo_button_left">
-                <input type="button" id="research_confirm" class="w3-button button-all button-main" value="CONFIRMAR" style="width: 100%"/>
-            </div>
-            <div class="w3-col w3-half duo_button_right">
-                <input type="button" id="research_cancel" class="w3-button button-all button-secondary" value="CANCELAR" style="width: 100%" onclick="document.getElementById('new_research_modal').style.display='none'"/>
+            <div class="duo_button_div">
+                <div class="duo_button_left">
+                    <input type="button" id="research_cancel" class="w3-button button-all button-secondary" value="CANCELAR" style="width: 100%" onclick="document.getElementById('new_research_modal').style.display='none'"/>
+                </div>
+                <div class="duo_button_right">
+                    <input type="button" id="research_confirm" class="w3-button button-all button-main" value="CONFIRMAR" style="width: 100%"/>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    var autocompleteTimeout = null;
+    var timeForAutoComplete = 500;
+    var lastPSnameInput = "";
+
+    function openResearchModal() {
+
+        let modal = document.getElementById('new_research_modal');
+        modal.style.display='block';
+
+        $('#pokestop_name').focus();
+    }
+
+    function researchModalOnLoad () {
+
+        var input = document.getElementById("pokestop_name");
+
+        input.addEventListener("keyup", function(event) {
+            if (event.keyCode === 13) {
+                if(this.value.trim() === "") {
+                    toastr['warning']("Por favor informe o pokestop");
+                    return;
+                }
+                $('#research').focus();
+            }
+            else if(event instanceof KeyboardEvent) {
+                pokestopNameInputOnKeyUpBehaviour(this.value.trim());
+            }
+        });
+
+        input = document.getElementById("research");
+
+        input.addEventListener("keyup", function(event) {
+            if (event.keyCode === 13) {
+                $('#reward').focus();
+            }
+        });
+
+        input = document.getElementById("reward");
+
+        input.addEventListener("keyup", function(event) {
+            if (event.keyCode === 13) {
+                $('#research_confirm').trigger('click');
+            }
+        });
+    }
+
+    function pokestopNameInputOnKeyUpBehaviour(stretch) {
+
+        if(autocompleteTimeout != null) {
+            clearTimeout(autocompleteTimeout);
+        }
+
+        if(stretch.length < 2 || stretch === lastPSnameInput) {
+            return;
+        }
+
+        autocompleteTimeout = setTimeout(function() {
+            lastPSnameInput = stretch;
+            $.post("/pogo/php_posts/post_pokestop.php", {
+                operation: 'list_pokestops_by_stretch',
+                stretch: stretch,
+                totalResults: 6
+            })
+            .done(function (data) {
+                if(data['status'] == 1) {
+                    let html = "";
+                    for(let row of data['data']) {
+                        html += "<option>" + row + "</option>"
+                    }
+                    $('#ps_name_list').html(html);
+                }
+                else {
+                    console.log(data);
+                    toastr['error']('Ocorreu um erro: ' + data['message'] + ' (' + data['status'] + ')');
+                }
+            });
+        }, timeForAutoComplete);
+    }
+
     $('#research_confirm').on('click', function() {
         let pokestop_name = $('#pokestop_name').val().trim();
         let research = $('#research').val().trim();
         let reward = $('#reward').val().trim();
         if(pokestop_name == "") {
             toastr['warning']("Por favor informe o pokestop");
+            $('#pokestop_name').focus();
             return;
         }
         if(research == "" && reward == "") {
             toastr['warning']("Por favor informe a missão e/ou a recompensa");
+            $('#research').focus();
             return;
         }
         $(this).prop('disabled', true);
@@ -48,7 +133,6 @@
             reward: reward
         })
         .done(function (data) {
-            console.log(data);
             if (data['status'] == 1) {
                 toastr['success'](data['message']);
                 $('#new_research_modal').hide();
@@ -98,7 +182,6 @@
 
             let research_div = $(this).closest('.research-container');
             $('#confirm_yes').off().on('click', function() {
-                console.log(research_div);
                 deleteResearch(research_div);
             });
             $('#confirm_title').text('Deseja mesmo remover o informe de missão?');
@@ -113,7 +196,6 @@
             research: research_id
         })
         .done(function(data) {
-            console.log(data);
             if(data['status'] == 1) {
                 research_div.next().remove();
                 research_div.remove();

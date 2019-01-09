@@ -25,10 +25,6 @@ $user = isset($_SESSION['email']);
     $jquery = true;
     $fontAwesome = true;
     $toastr = true;
-    $awesomplete = false;
-    $iconSelect = false;
-    $moment = false;
-    $html2canvas = false;
     include($pogo_path."/resources/php_components/import_js_css.php");
     ?>
     <title>Pokestop List</title>
@@ -45,7 +41,7 @@ $user = isset($_SESSION['email']);
             <?php if($user) { ?>
                 <button class="w3-button button-all button-main full-width" onclick="document.getElementById('new_pokestop_gym_modal').style.display='block'">
             <?php } else { ?>
-                <button class="w3-button button-all button-main full-width" onclick="window.location.replace('/pogo/views/login.php')">
+                <button class="w3-button button-all button-main full-width" onclick="window.location.href = '/pogo/views/login.php'">
             <?php } ?>
             <i class="fas fa-plus"></i> SUGERIR NOVO</button>
         </div>
@@ -55,9 +51,9 @@ $user = isset($_SESSION['email']);
 
     <?php
     if($user) {
-        include($pogo_path."/views/new_pokestop_gym_modal.php");
+        include($pogo_path."/views/modals/new_pokestop_gym_modal.php");
     }
-    include($pogo_path."/views/confirm_modal.php");
+    include($pogo_path."/views/modals/confirm_modal.php");
     ?>
 
     <?php include($pogo_path."/resources/php_components/main_bottom_footer.php"); ?>
@@ -69,13 +65,12 @@ $user = isset($_SESSION['email']);
         $('#link_pokestoplist').addClass('focus-bg');
 
         $.post( "/pogo/php_posts/post_pokestop.php", {
-            operation: 'list_pokestops_by_name'
+            operation: 'list_pokestops_and_gyms_by_name'
         })
         .done(function(data) {
-            console.log(data);
             if(data['status'] == 1) {
                 var html = '';
-                for(let row of data['data']) {
+                for(let row of data['data']['pokestops']) {
                     html += getPokestopElement(row);
                 }
                 $('#pokestop_list').append(html);
@@ -90,9 +85,14 @@ $user = isset($_SESSION['email']);
     });
 
     function getPokestopElement(el) {
+        let icon = 'fas fa-map-pin';
+        if(el['tipo'] === 'g') {
+            icon = 'fas fa-shield-alt';
+        }
+
         let html = '<div class="w3-container">' +
-            '<div class="w3-col w3-center icon-fix-width"><i class="fas fa-map-pin"></i></div>' +
-            '<div class="w3-rest">' + el + '</div>' +
+            '<div class="w3-col w3-center icon-fix-width"><i class="' + icon + '"></i></div>' +
+            '<div class="w3-rest">' + el['nome'] + '</div>' +
             '</div>' +
             '<hr>';
         return html;
