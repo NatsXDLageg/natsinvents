@@ -18,6 +18,10 @@
         <div class="w3-col w3-center icon-fix-width"><i class="fas fa-map-pin"></i></div>
         <div class="w3-rest">Pokestops e Gyms</div>
     </a>
+    <a id="link_linklist" href="/pogo/views/linklist.php" class="w3-bar-item w3-button button-all button-tertiary">
+        <div class="w3-col w3-center icon-fix-width"><i class="fas fa-link"></i></div>
+        <div class="w3-rest">Links Interessantes</div>
+    </a>
     <?php if($user) { ?>
         <a id="link_shinylist" href="/pogo/views/shinylist.php" class="w3-bar-item w3-button button-all button-tertiary">
             <div class="w3-col w3-center icon-fix-width"><i class="fas fa-th"></i></div>
