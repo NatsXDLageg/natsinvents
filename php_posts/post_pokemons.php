@@ -36,7 +36,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //    \___|___| |_|   |_|  \___/|_|\_\___|_|  |_|\___/|_|\_|___/ |___/ |_|   |_|\_/_/ \_\_|  |_|___|
         //
         case 'get_pokemons_by_name':
-            $statement = $mysqli->prepare("Select id, nome from pokemon order by nome");
+            $sql = "Select
+                        id,
+                        CASE
+                          WHEN alternateformname IS NOT NULL THEN 
+                            CONCAT(nome, ' (', alternateformname, ')')
+                          ELSE
+                            nome
+                        END as nome
+                    from pokemon
+                    order by nome";
+
+            $statement = $mysqli->prepare($sql);
             $result = $statement->execute();
 
             if($result) {
@@ -82,7 +93,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $userId = $row['id'];
 
                 $query = "
-                    Select p.id, p.nome, COALESCE(uhp.has_shiny_too, 0) as 'marked', p.pokedexevo                   
+                    Select
+                        p.id,
+                        CASE
+                          WHEN p.alternateformname IS NOT NULL THEN 
+                            CONCAT(p.nome, ' (', p.alternateformname, ')')
+                          ELSE
+                            p.nome
+                        END as nome,
+                        COALESCE(uhp.has_shiny_too, 0) as 'marked',
+                        p.pokedexevo                   
                     from pokemon p
                         left join usuario_has_pokemon uhp on uhp.id_pokemon = p.id and uhp.id_usuario = ?
                     where
@@ -92,7 +112,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $statement->bind_param('i', $userId);
             }
             else {
-                $query = "Select id, nome, 0 as 'marked' from pokemon where hasshiny = 1 order by pokedexevo, pokedex, id";
+                $query = "Select
+                            id,
+                            CASE
+                              WHEN alternateformname IS NOT NULL THEN 
+                                CONCAT(nome, ' (', alternateformname, ')')
+                              ELSE
+                                nome
+                            END as nome,
+                            0 as 'marked'
+                        from pokemon
+                        where hasshiny = 1
+                        order by pokedexevo, pokedex, id";
                 $statement = $mysqli->prepare($query);
             }
             $result = $statement->execute();

@@ -77,7 +77,7 @@ if(!isset($check_login)) {
     var imagesToLoadList;
     var imagesToLoadIndex = 0;
     const amountToLoadAtOnce = 10;
-    const maxRepeatReload = 3;
+    const maxRepeatReload = 2;
 
     $(document).ready(function() {
         $('#link_shinylist').addClass('focus-bg');
