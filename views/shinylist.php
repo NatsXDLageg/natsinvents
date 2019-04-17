@@ -77,7 +77,7 @@ if(!isset($check_login)) {
     var imagesToLoadList;
     var imagesToLoadIndex = 0;
     const amountToLoadAtOnce = 10;
-    const maxRepeatReload = 3;
+    const maxRepeatReload = 2;
 
     $(document).ready(function() {
         $('#link_shinylist').addClass('focus-bg');
@@ -187,6 +187,8 @@ if(!isset($check_login)) {
     
     function reloadPoke(index) {
         let html;
+        let pokeNumber = imagesToLoadList[index]['id'];
+
         if(typeof imagesToLoadList[index]['repeat'] === 'undefined') {
             imagesToLoadList[index]['repeat'] = 0;
         }
@@ -197,8 +199,6 @@ if(!isset($check_login)) {
         }
         else {
             (imagesToLoadList[index]['repeat'])++;
-
-            let pokeNumber = imagesToLoadList[index]['id'];
 
             html = '<img class="img-shiny" src="/pogo/resources/images/pokemon/shiny/' + pokeNumber + '.png" width="100%" onload="checkAllLoaded(' + index + ');" onerror="reloadPoke(' + index + ');"/>' +
                 '<p>' + imagesToLoadList[index]['nome'] + '</p>';
